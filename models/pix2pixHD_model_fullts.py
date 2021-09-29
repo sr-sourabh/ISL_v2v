@@ -265,9 +265,9 @@ class Pix2PixHDModel(BaseModel):
             loss_D_fake_hand = self.criterionGAN(pred_fake_hand, False)
             pred_real_hand = self.discriminatehand_cgan(hlabel_real_tensor, hand_frame_real_tensor)
             loss_D_real_hand = self.criterionGAN(pred_real_hand, True)
-            print('pred_fake_hand: ', len(pred_fake_hand))
+            print('pred_fake_hand: ', pred_fake_hand[0].shape, pred_fake_hand[1].shape)
             print('loss_D_fake_hand: ', loss_D_fake_hand)
-            print('pred_real_hand: ', len(pred_real_hand))
+            print('pred_real_hand: ', pred_real_hand[0].shape, pred_real_hand[1].shape)
             print('loss_D_real_hand: ', loss_D_real_hand)
                         
             # pred_fake_hand = self.discriminatehand_cgan(hlabel_fake_tensor, I_0)

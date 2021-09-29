@@ -18,8 +18,6 @@ import util.hand_utils as hand_utils
 import cv2
 
 opt = TrainOptions().parse()
-print('hello')
-print(opt)
 iter_path = os.path.join(opt.checkpoints_dir, opt.name, 'iter.txt')
 if opt.continue_train:
     try:

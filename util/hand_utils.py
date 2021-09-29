@@ -103,6 +103,7 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
         connection_drawing_spec=mp_drawing_styles
             .get_default_face_mesh_tesselation_style())
     cv2.imwrite('/disk2/shourabh/avr/trash/face_mesh.jpg', temp_image)
+    cv2.imwrite('/disk2/shourabh/avr/trash/face_mesh2.jpg', temp_image2)
     hand_state = [False, False]
     if results.left_hand_landmarks != None:
         hand_state[0] = True

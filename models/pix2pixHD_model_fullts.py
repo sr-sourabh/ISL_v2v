@@ -216,10 +216,8 @@ class Pix2PixHDModel(BaseModel):
         loss_D_fake_hand = 0
         loss_D_real_hand = 0
         
-
-        print(self.opt.hand_discrim)
         if self.opt.hand_discrim:
-            print('hand_discrim')
+
             if self.opt.netG == "global":
                 scale_n, translate_n = hand_utils.resize_scale(gen_img, myshape=(256, 512, 3))
                 gen_img = hand_utils.fix_image(scale_n, translate_n, gen_img, myshape=(256, 512, 3))

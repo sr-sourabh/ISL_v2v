@@ -100,6 +100,8 @@ def debugDrawMeshOverImageAndSaveToTrash(frame, results):
 def getFaceLabelAndTopBottomPoints(results, frame):
     face_label = np.zeros(frame.shape, dtype=np.uint8)
     face_label.fill(255)
+    if results.face_landmarks == None:
+        return [face_label, [0, 0], [0, 0]]
     print(results.face_landmarks)
     face_label.flags.writeable = True
     mp_drawing.draw_landmarks(
@@ -149,8 +151,7 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
         else:
             righthnd_pts = GetCoordForCurrentInstance(results.right_hand_landmarks)
 
-    if results.face_landmarks != None:
-        face_info = getFaceLabelAndTopBottomPoints(results, frame)
+    face_info = getFaceLabelAndTopBottomPoints(results, frame)
             
     return lefthnd_pts, righthnd_pts, flefthnd_pts, frighthnd_pts, face_info
         

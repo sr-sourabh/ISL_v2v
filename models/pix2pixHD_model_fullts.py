@@ -14,6 +14,21 @@ import cv2
 import torchvision.transforms as transforms
 from PIL import Image
 
+
+def debugSaveToTrashRealAndGeneratedImage(hlabel_real, real_frame_cv, gen_img):
+    base_path = '/disk2/shourabh/avr/trash/'
+    cv2.imwrite(base_path + 'hlabel_real.jpg', hlabel_real)
+    cv2.imwrite(base_path + 'real_frame_cv.jpg', real_frame_cv)
+    cv2.imwrite(base_path + 'gen_img.jpg', gen_img)
+
+
+def debugSaveToTrashRealAndFakeFrames(hand_frame_fake, hand_frame_real, hsk_frame):
+    base_path = '/disk2/shourabh/avr/trash/'
+    cv2.imwrite(base_path + 'hand_frame_fake.jpg', hand_frame_fake)
+    cv2.imwrite(base_path + 'hand_frame_real.jpg', hand_frame_real)
+    cv2.imwrite(base_path + 'hsk_frame.jpg', hsk_frame)
+
+
 class Pix2PixHDModel(BaseModel):
     def name(self):
         return 'Pix2PixHDModel'
@@ -135,7 +150,6 @@ class Pix2PixHDModel(BaseModel):
             zeroshere = zeroshere.data.float().cuda()
             zeroshere = Variable(zeroshere, volatile=infer)
 
-
         return input_label, real_image, next_label, next_image, zeroshere
 
     def discriminate(self, input_label, test_image, use_pool=False):
@@ -169,7 +183,8 @@ class Pix2PixHDModel(BaseModel):
         input_concat = torch.cat((label, image.detach()), dim=1)
         return self.netDhand.forward(input_concat)
 
-    def forward(self, label, next_label, image, next_image, zeroshere, hlabel_real, real_frame_cv, left_bbox, right_bbox, infer=False):
+    def forward(self, label, next_label, image, next_image, zeroshere, hlabel_real, real_frame_cv, left_bbox, right_bbox,
+                face_info_real, infer=False):
         # Encode Inputs
         input_label, real_image, next_label, next_image, zeroshere = self.encode_input(label, image, \
                      next_label=next_label, next_image=next_image, zeroshere=zeroshere)
@@ -193,10 +208,7 @@ class Pix2PixHDModel(BaseModel):
         
         hsk_frame = np.zeros(gen_img.shape, dtype=np.uint8)
         hsk_frame.fill(255)
-        base_path = '/disk2/shourabh/avr/trash/'
-        cv2.imwrite(base_path + 'hlabel_real.jpg', hlabel_real)
-        cv2.imwrite(base_path + 'real_frame_cv.jpg', real_frame_cv)
-        cv2.imwrite(base_path + 'gen_img.jpg', gen_img)
+        debugSaveToTrashRealAndGeneratedImage(hlabel_real, real_frame_cv, gen_img)
 
         hand_frame_fake = np.zeros(gen_img.shape, dtype=np.uint8)
         hand_frame_fake.fill(255)
@@ -217,11 +229,10 @@ class Pix2PixHDModel(BaseModel):
         loss_D_real_hand = 0
         
         if self.opt.hand_discrim:
-
             if self.opt.netG == "global":
                 scale_n, translate_n = hand_utils.resize_scale(gen_img, myshape=(256, 512, 3))
                 gen_img = hand_utils.fix_image(scale_n, translate_n, gen_img, myshape=(256, 512, 3))
-                lfpts_rz, rfpts_rz, lfpts, rfpts = hand_utils.get_keypoints_holistic(gen_img, fix_coords=True, sz=64)
+                lfpts_rz, rfpts_rz, lfpts, rfpts, face_info_fake = hand_utils.get_keypoints_holistic(gen_img, fix_coords=True, sz=64)
                 lbx, lby, lbw = left_bbox
                 rbx, rby, rbw = right_bbox
                 hand_frame_fake[lby:lby+lbw, lbx:lbx+lbw, :] = gen_img[lby:lby+lbw, lbx:lbx+lbw, :]
@@ -230,11 +241,10 @@ class Pix2PixHDModel(BaseModel):
                 hand_frame_real[rby:rby+rbw, rbx:rbx+rbw, :] = real_frame_cv[rby:rby+rbw, rbx:rbx+rbw, :]
                 hand_utils.display_single_hand_skleton(hsk_frame, lfpts, sz=2)
                 hand_utils.display_single_hand_skleton(hsk_frame, rfpts, sz=2)
-
             else:
                 scale_n, translate_n = hand_utils.resize_scale(gen_img)
                 gen_img = hand_utils.fix_image(scale_n, translate_n, gen_img)
-                lfpts_rz, rfpts_rz, lfpts, rfpts = hand_utils.get_keypoints_holistic(gen_img, fix_coords=True)
+                lfpts_rz, rfpts_rz, lfpts, rfpts, face_info_fake = hand_utils.get_keypoints_holistic(gen_img, fix_coords=True)
                 lbx, lby, lbw = left_bbox
                 rbx, rby, rbw = right_bbox
                 #print(lfpts, rfpts)
@@ -245,9 +255,7 @@ class Pix2PixHDModel(BaseModel):
                 hand_utils.display_single_hand_skleton(hsk_frame, lfpts)
                 hand_utils.display_single_hand_skleton(hsk_frame, rfpts)
 
-            cv2.imwrite(base_path + 'hand_frame_fake.jpg', hand_frame_fake)
-            cv2.imwrite(base_path + 'hand_frame_real.jpg', hand_frame_real)
-            cv2.imwrite(base_path + 'hsk_frame.jpg', hsk_frame)
+            debugSaveToTrashRealAndFakeFrames(hand_frame_fake, hand_frame_real, hsk_frame)
 
             hand_frame_fake_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(hand_frame_fake.copy(), cv2.COLOR_BGR2RGB)))
             hand_frame_fake_tensor = hand_frame_fake_tensor.view(1, hand_frame_fake.shape[2], hand_frame_fake.shape[0], hand_frame_fake.shape[1]).cuda() 
@@ -265,16 +273,30 @@ class Pix2PixHDModel(BaseModel):
             loss_D_fake_hand = self.criterionGAN(pred_fake_hand, False)
             pred_real_hand = self.discriminatehand_cgan(hlabel_real_tensor, hand_frame_real_tensor)
             loss_D_real_hand = self.criterionGAN(pred_real_hand, True)
-            ''' print('pred_fake_hand: ', pred_fake_hand[0][0].shape, pred_fake_hand[1][0].shape)
-            print('loss_D_fake_hand: ', loss_D_fake_hand)
-            print('pred_real_hand: ', pred_real_hand[0][0].shape, pred_real_hand[1][0].shape)
-            print('loss_D_real_hand: ', loss_D_real_hand)'''
                         
             # pred_fake_hand = self.discriminatehand_cgan(hlabel_fake_tensor, I_0)
             # loss_D_fake_hand = self.criterionGAN(pred_fake_hand, False)
             # pred_real_hand = self.discriminatehand_cgan(hlabel_real_tensor, image)
             # loss_D_real_hand = self.criterionGAN(pred_real_hand, True)
-                
+
+        if self.opt.face_discrim:
+            face_top_left_x = face_info_real[1][0]
+            face_top_left_y = face_info_real[1][1]
+            face_bottom_right_x = face_info_real[2][0]
+            face_bottom_right_y = face_info_real[2][1]
+            face_label_real = face_info_real[0]
+            face_label_fake = face_info_fake[0]
+            face_shape = face_label_real.shape
+            face_frame_real = np.zeros(face_shape, dtype=np.uint8)
+            face_frame_real.fill(255)
+            face_frame_real[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :] = \
+                real_frame_cv[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :]
+            face_frame_fake = np.zeros(face_shape, dtype=np.uint8)
+            face_frame_fake.fill(255)
+            face_frame_fake[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :] = \
+                real_frame_cv[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :]
+
+
 
         # Fake Detection and Loss
         pred_fake_pool = self.discriminate_4(input_label, next_label, I_0, I_1, use_pool=True)

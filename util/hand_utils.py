@@ -73,6 +73,43 @@ def get_keypoints(frame, fix_coords=False, sz=128):
 mp_holistic = mp.solutions.holistic
 holistic = mp_holistic.Holistic( static_image_mode=True ,min_detection_confidence=confidence)
 
+# Draw mesh and landmarks over image frame and save to a trash location for debugging
+def debugDrawMeshOverImageAndSaveToTrash(frame, results):
+    face_mesh = frame.copy()
+    face_mesh2 = frame.copy()
+    face_mesh.flags.writeable = True
+    face_mesh2.flags.writeable = True
+    mp_drawing.draw_landmarks(
+        face_mesh,
+        results.face_landmarks,
+        mp_holistic.FACEMESH_CONTOURS,
+        landmark_drawing_spec=None,
+        connection_drawing_spec=mp_drawing_styles
+            .get_default_face_mesh_contours_style())
+    mp_drawing.draw_landmarks(
+        face_mesh2,
+        results.face_landmarks,
+        mp_face_mesh.FACEMESH_TESSELATION,
+        landmark_drawing_spec=None,
+        connection_drawing_spec=mp_drawing_styles
+            .get_default_face_mesh_tesselation_style())
+    cv2.imwrite('/disk2/shourabh/avr/trash/face_mesh.jpg', face_mesh)
+    cv2.imwrite('/disk2/shourabh/avr/trash/face_mesh2.jpg', face_mesh2)
+
+
+def getFaceLabelAndTopBottomPoints(results, frame):
+    face_label = np.zeros(frame.shape, dtype=np.uint8)
+    face_label.flags.writeable = True
+    mp_drawing.draw_landmarks(
+        face_label,
+        results.face_landmarks,
+        mp_face_mesh.FACEMESH_TESSELATION,
+        landmark_drawing_spec=None,
+        connection_drawing_spec=mp_drawing_styles
+            .get_default_face_mesh_tesselation_style())
+    cv2.imwrite('/disk2/shourabh/avr/trash/face_label22222.jpg', face_label)
+    return [face_label, [0, 0], [0, 0]]
+
 def get_keypoints_holistic(frame, fix_coords=False, sz=128):
     lefthnd_pts = np.zeros((21, 2))
     righthnd_pts = np.zeros((21, 2))
@@ -84,26 +121,7 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
     height, width, channels = image.shape
     image.flags.writeable = False
     results = holistic.process(image)
-    temp_image = frame.copy()
-    temp_image2 = frame.copy()
-    temp_image.flags.writeable = True
-    temp_image2.flags.writeable = True
-    mp_drawing.draw_landmarks(
-        temp_image,
-        results.face_landmarks,
-        mp_holistic.FACEMESH_CONTOURS,
-        landmark_drawing_spec=None,
-        connection_drawing_spec=mp_drawing_styles
-            .get_default_face_mesh_contours_style())
-    mp_drawing.draw_landmarks(
-        temp_image2,
-        results.face_landmarks,
-        mp_face_mesh.FACEMESH_TESSELATION,
-        landmark_drawing_spec=None,
-        connection_drawing_spec=mp_drawing_styles
-            .get_default_face_mesh_tesselation_style())
-    cv2.imwrite('/disk2/shourabh/avr/trash/face_mesh.jpg', temp_image)
-    cv2.imwrite('/disk2/shourabh/avr/trash/face_mesh2.jpg', temp_image2)
+    # debugDrawMeshOverImageAndSaveToTrash(frame, results)
     hand_state = [False, False]
     if results.left_hand_landmarks != None:
         hand_state[0] = True
@@ -128,8 +146,11 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
             righthnd_pts = rescale_points(sz, sz, righthnd_pts)
         else:
             righthnd_pts = GetCoordForCurrentInstance(results.right_hand_landmarks)
+
+    if results.face_landmarks != None:
+        face_info = getFaceLabelAndTopBottomPoints(results, frame)
             
-    return lefthnd_pts, righthnd_pts, flefthnd_pts, frighthnd_pts
+    return lefthnd_pts, righthnd_pts, flefthnd_pts, frighthnd_pts, face_info
         
     
 def resize_scale(frame, myshape = (512, 1024, 3)):

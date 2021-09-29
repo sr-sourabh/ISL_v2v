@@ -78,11 +78,14 @@ for epoch in range(start_epoch, opt.niter + opt.niter_decay + 1):
             real_img = cv2.cvtColor(real_img[:,:int(width/2),:], cv2.COLOR_RGB2BGR)
             hsk_frame = np.zeros(real_img.shape, dtype=np.uint8)
             hsk_frame.fill(255)
+
+            # face discriminator variables
+            face_info_real = []  # [face_label_real, [face_top_left_x, face_top_left_y], [face_bottom_right_x, face_bottom_right_y]]
             
             if opt.netG == "global":
                 scale_n, translate_n = hand_utils.resize_scale(real_img, myshape=(256, 512, 3))
                 real_img = hand_utils.fix_image(scale_n, translate_n, real_img, myshape=(256, 512, 3))
-                lfpts_rz, rfpts_rz, lfpts, rfpts = hand_utils.get_keypoints_holistic(real_img, fix_coords=True, sz=64)
+                lfpts_rz, rfpts_rz, lfpts, rfpts, face_info_real = hand_utils.get_keypoints_holistic(real_img, fix_coords=True, sz=64)
                 lbx, lby, lbw = hand_utils.assert_bbox(lfpts)
                 rbx, rby, rbw = hand_utils.assert_bbox(rfpts)
                 hand_utils.display_single_hand_skleton(hsk_frame, lfpts, sz=2)                
@@ -95,7 +98,7 @@ for epoch in range(start_epoch, opt.niter + opt.niter_decay + 1):
             else:
                 scale_n, translate_n = hand_utils.resize_scale(real_img)
                 real_img = hand_utils.fix_image(scale_n, translate_n, real_img)
-                lfpts_rz, rfpts_rz, lfpts, rfpts = hand_utils.get_keypoints_holistic(real_img, fix_coords=True)
+                lfpts_rz, rfpts_rz, lfpts, rfpts, face_info_real = hand_utils.get_keypoints_holistic(real_img, fix_coords=True)
                 lbx, lby, lbw = hand_utils.assert_bbox(lfpts)
                 rbx, rby, rbw = hand_utils.assert_bbox(rfpts)
                 hand_utils.display_single_hand_skleton(hsk_frame, lfpts)
@@ -106,10 +109,10 @@ for epoch in range(start_epoch, opt.niter + opt.niter_decay + 1):
                 # real_img = cv2.rectangle(real_img, (rbx, rby), (rbx+rbw, rby+rbw), (255, 0, 0), 2)
                 #hsk_frame[lby:lby+lbw, lbx:lbx+lbw, :] = real_img[lby:lby+lbw, lbx:lbx+lbw, :]
                 #hsk_frame[rbx:rbx+rbw, rby:rby+rbw, :] = real_img[rbx:rbx+rbw, rby:rby+rbw, :]
-            
 
-            losses, generated = model(Variable(data['label']), Variable(data['next_label']), Variable(data['image']), \
-                    Variable(data['next_image']), Variable(cond_zeros), hsk_frame, real_img, [lbx, lby, lbw], [rbx, rby, rbw], infer=True)
+            losses, generated = model(Variable(data['label']), Variable(data['next_label']), Variable(data['image']),
+                                      Variable(data['next_image']), Variable(cond_zeros), hsk_frame, real_img, [lbx, lby, lbw], [rbx, rby, rbw],
+                                      face_info_real, infer=True)
 
             # if total_steps % 100 == 0:
             #     gen_img = util.tensor2im(generated[0].data[0])[:,:1024,:]

@@ -99,10 +99,11 @@ def debugDrawMeshOverImageAndSaveToTrash(frame, results):
 
 def getFaceLabelAndTopBottomPoints(results, frame):
     face_label = np.zeros(frame.shape, dtype=np.uint8)
+    positions = np.nonzero(face_label)
     face_label.fill(255)
     if results.face_landmarks == None:
         return [face_label, [0, 0], [0, 0]]
-    print(results.face_landmarks)
+
     face_label.flags.writeable = True
     mp_drawing.draw_landmarks(
         face_label,
@@ -111,7 +112,14 @@ def getFaceLabelAndTopBottomPoints(results, frame):
         landmark_drawing_spec=None,
         connection_drawing_spec=mp_drawing_styles
             .get_default_face_mesh_tesselation_style())
-    cv2.imwrite('/disk2/shourabh/avr/trash/face_label22222.jpg', face_label)
+
+    top = positions[0].min()
+    bottom = positions[0].max()
+    left = positions[1].min()
+    right = positions[1].max()
+
+    face_label = cv2.rectangle(cv2.cvtColor(face_label, cv2.COLOR_GRAY2BGR) , (left, top), (right, bottom), (0, 255, 0), 1)
+    cv2.imwrite('/disk2/shourabh/avr/trash/face_label.jpg', face_label)
     return [face_label, [0, 0], [0, 0]]
 
 def get_keypoints_holistic(frame, fix_coords=False, sz=128):

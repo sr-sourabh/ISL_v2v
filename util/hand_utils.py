@@ -99,7 +99,6 @@ def debugDrawMeshOverImageAndSaveToTrash(frame, results):
 
 def getFaceLabelAndTopBottomPoints(results, frame):
     face_label = np.zeros(frame.shape, dtype=np.uint8)
-    positions = np.nonzero(face_label)
     if results.face_landmarks == None:
         return [face_label, [0, 0], [0, 0]]
 
@@ -112,6 +111,7 @@ def getFaceLabelAndTopBottomPoints(results, frame):
         connection_drawing_spec=mp_drawing_styles
             .get_default_face_mesh_tesselation_style())
 
+    positions = np.nonzero(face_label)
     top = positions[0].min()
     bottom = positions[0].max()
     left = positions[1].min()

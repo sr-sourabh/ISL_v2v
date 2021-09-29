@@ -81,7 +81,7 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
     height, width, channels = image.shape
     image.flags.writeable = False
     results = holistic.process(image)
-    print(results)
+    print(results.FACE_LANDMARKS)
     hand_state = [False, False]
     if results.left_hand_landmarks != None:
         hand_state[0] = True

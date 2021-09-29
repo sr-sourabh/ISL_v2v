@@ -99,6 +99,8 @@ def debugDrawMeshOverImageAndSaveToTrash(frame, results):
 
 def getFaceLabelAndTopBottomPoints(results, frame):
     face_label = np.zeros(frame.shape, dtype=np.uint8)
+    face_label.fill(255)
+    print(results.face_landmarks)
     face_label.flags.writeable = True
     mp_drawing.draw_landmarks(
         face_label,

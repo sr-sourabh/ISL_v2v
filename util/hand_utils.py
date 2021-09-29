@@ -4,6 +4,8 @@ import cv2
 from google.protobuf.json_format import MessageToDict
 
 mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
 
 confidence = 0.7
 
@@ -81,7 +83,16 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
     height, width, channels = image.shape
     image.flags.writeable = False
     results = holistic.process(image)
-    print(results.face_landmarks)
+    temp_image = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB);
+    temp_image.flags.writeable = True
+    mp_drawing.draw_landmarks(
+        temp_image,
+        results.face_landmarks,
+        mp_holistic.FACEMESH_CONTOURS,
+        landmark_drawing_spec=None,
+        connection_drawing_spec=mp_drawing_styles
+            .get_default_face_mesh_contours_style())
+    cv2.imwrite('/disk2/shourabh/avr/trash/face_mesh.jpg', temp_image)
     hand_state = [False, False]
     if results.left_hand_landmarks != None:
         hand_state[0] = True

@@ -71,16 +71,11 @@ for epoch in range(start_epoch, opt.niter + opt.niter_decay + 1):
         no_nexts = data['next_label'].dim() > 1 #check if has a next label (last training pair does not have a next label)
 
         if no_nexts:
-            print('hello')
-            print(data['image'].shape, data['next_image'])
             cond_zeros = torch.zeros(data['label'].size()).float()
             targets = torch.cat((data['image'], data['next_image']), dim=3)
-            print(targets.shape)
             real_img = util.tensor2im(targets[0])
-            print(real_img.shape)
             height, width, channels = real_img.shape
             real_img = cv2.cvtColor(real_img[:,:int(width/2),:], cv2.COLOR_RGB2BGR)
-            print(real_img.shape)
             hsk_frame = np.zeros(real_img.shape, dtype=np.uint8)
             hsk_frame.fill(255)
             

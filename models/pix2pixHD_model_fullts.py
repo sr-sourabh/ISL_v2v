@@ -193,7 +193,11 @@ class Pix2PixHDModel(BaseModel):
         
         hsk_frame = np.zeros(gen_img.shape, dtype=np.uint8)
         hsk_frame.fill(255)
-        
+        print('hsk_frame: ', hsk_frame.shape)
+        print('hlabel_real: ', hlabel_real.shape)
+        print('real_frame_cv: ', real_frame_cv.shape)
+        print('gen_img: ', gen_img.shape)
+
         hand_frame_fake = np.zeros(gen_img.shape, dtype=np.uint8)
         hand_frame_fake.fill(255)
         
@@ -243,7 +247,10 @@ class Pix2PixHDModel(BaseModel):
                 hand_utils.display_single_hand_skleton(hsk_frame, lfpts)
                 hand_utils.display_single_hand_skleton(hsk_frame, rfpts)
         
-            
+            print('hand_frame_fake: ', hand_frame_fake.shape)
+            print('hand_frame_real: ', hand_frame_real.shape)
+            print('hsk_frame: ', hsk_frame.shape)
+
             hand_frame_fake_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(hand_frame_fake.copy(), cv2.COLOR_BGR2RGB)))
             hand_frame_fake_tensor = hand_frame_fake_tensor.view(1, hand_frame_fake.shape[2], hand_frame_fake.shape[0], hand_frame_fake.shape[1]).cuda() 
             

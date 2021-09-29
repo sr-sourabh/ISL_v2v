@@ -117,7 +117,7 @@ def getFaceLabelAndTopBottomPoints(results, frame):
     left = positions[1].min()
     right = positions[1].max()
 
-    face_label = cv2.rectangle(cv2.cvtColor(face_label, cv2.COLOR_GRAY2BGR) , (left, top), (right, bottom), (0, 255, 0), 1)
+    face_label = cv2.rectangle(face_label , (left, top), (right, bottom), (0, 255, 0), 1)
     cv2.imwrite('/disk2/shourabh/avr/trash/face_label.jpg', face_label)
     return [face_label, [0, 0], [0, 0]]
 

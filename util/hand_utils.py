@@ -83,7 +83,7 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
     height, width, channels = image.shape
     image.flags.writeable = False
     results = holistic.process(image)
-    temp_image = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB);
+    temp_image = frame.copy()
     temp_image.flags.writeable = True
     mp_drawing.draw_landmarks(
         temp_image,

@@ -193,9 +193,6 @@ class Pix2PixHDModel(BaseModel):
         
         hsk_frame = np.zeros(gen_img.shape, dtype=np.uint8)
         hsk_frame.fill(255)
-        print('hlabel_real: ', hlabel_real.shape)
-        print('real_frame_cv: ', real_frame_cv.shape)
-        print('gen_img: ', gen_img.shape)
         base_path = '/disk2/shourabh/avr/trash/'
         cv2.imwrite(base_path + 'hlabel_real.jpg', hlabel_real)
         cv2.imwrite(base_path + 'real_frame_cv.jpg', real_frame_cv)
@@ -222,7 +219,7 @@ class Pix2PixHDModel(BaseModel):
 
                 
         if self.opt.hand_discrim:
-            
+            print('hand_discrim')
             if self.opt.netG == "global":
                 scale_n, translate_n = hand_utils.resize_scale(gen_img, myshape=(256, 512, 3))
                 gen_img = hand_utils.fix_image(scale_n, translate_n, gen_img, myshape=(256, 512, 3))
@@ -249,10 +246,7 @@ class Pix2PixHDModel(BaseModel):
                 hand_frame_real[rby:rby+rbw, rbx:rbx+rbw, :] = real_frame_cv[rby:rby+rbw, rbx:rbx+rbw, :]
                 hand_utils.display_single_hand_skleton(hsk_frame, lfpts)
                 hand_utils.display_single_hand_skleton(hsk_frame, rfpts)
-        
-            print('hand_frame_fake: ', hand_frame_fake.shape)
-            print('hand_frame_real: ', hand_frame_real.shape)
-            print('hsk_frame: ', hsk_frame.shape)
+
             cv2.imwrite(base_path + 'hand_frame_fake.jpg', hand_frame_fake)
             cv2.imwrite(base_path + 'hand_frame_real.jpg', hand_frame_real)
             cv2.imwrite(base_path + 'hsk_frame.jpg', hsk_frame)

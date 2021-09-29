@@ -193,10 +193,11 @@ class Pix2PixHDModel(BaseModel):
         
         hsk_frame = np.zeros(gen_img.shape, dtype=np.uint8)
         hsk_frame.fill(255)
-        print('hsk_frame: ', hsk_frame.shape)
         print('hlabel_real: ', hlabel_real.shape)
         print('real_frame_cv: ', real_frame_cv.shape)
         print('gen_img: ', gen_img.shape)
+        base_path = '/disk2/shourabh/avr/trash/'
+        cv2.imwrite(base_path + 'hlabel_real.jpg', hlabel_real)
 
         hand_frame_fake = np.zeros(gen_img.shape, dtype=np.uint8)
         hand_frame_fake.fill(255)

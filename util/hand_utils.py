@@ -6,6 +6,7 @@ from google.protobuf.json_format import MessageToDict
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
+mp_face_mesh = mp.solutions.face_mesh
 
 confidence = 0.7
 
@@ -84,7 +85,9 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
     image.flags.writeable = False
     results = holistic.process(image)
     temp_image = frame.copy()
+    temp_image2 = frame.copy()
     temp_image.flags.writeable = True
+    temp_image2.flags.writeable = True
     mp_drawing.draw_landmarks(
         temp_image,
         results.face_landmarks,
@@ -92,6 +95,13 @@ def get_keypoints_holistic(frame, fix_coords=False, sz=128):
         landmark_drawing_spec=None,
         connection_drawing_spec=mp_drawing_styles
             .get_default_face_mesh_contours_style())
+    mp_drawing.draw_landmarks(
+        temp_image2,
+        results.face_landmarks,
+        mp_face_mesh.FACEMESH_TESSELATION,
+        landmark_drawing_spec=None,
+        connection_drawing_spec=mp_drawing_styles
+            .get_default_face_mesh_tesselation_style())
     cv2.imwrite('/disk2/shourabh/avr/trash/face_mesh.jpg', temp_image)
     hand_state = [False, False]
     if results.left_hand_landmarks != None:

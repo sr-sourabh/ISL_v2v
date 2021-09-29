@@ -217,7 +217,7 @@ class Pix2PixHDModel(BaseModel):
         loss_D_real_hand = 0
         
 
-                
+        print(self.opt.hand_discrim)
         if self.opt.hand_discrim:
             print('hand_discrim')
             if self.opt.netG == "global":

@@ -198,6 +198,8 @@ class Pix2PixHDModel(BaseModel):
         print('gen_img: ', gen_img.shape)
         base_path = '/disk2/shourabh/avr/trash/'
         cv2.imwrite(base_path + 'hlabel_real.jpg', hlabel_real)
+        cv2.imwrite(base_path + 'real_frame_cv.jpg', real_frame_cv)
+        cv2.imwrite(base_path + 'gen_img.jpg', gen_img)
 
         hand_frame_fake = np.zeros(gen_img.shape, dtype=np.uint8)
         hand_frame_fake.fill(255)
@@ -251,6 +253,9 @@ class Pix2PixHDModel(BaseModel):
             print('hand_frame_fake: ', hand_frame_fake.shape)
             print('hand_frame_real: ', hand_frame_real.shape)
             print('hsk_frame: ', hsk_frame.shape)
+            cv2.imwrite(base_path + 'hand_frame_fake.jpg', hand_frame_fake)
+            cv2.imwrite(base_path + 'hand_frame_real.jpg', hand_frame_real)
+            cv2.imwrite(base_path + 'hsk_frame.jpg', hsk_frame)
 
             hand_frame_fake_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(hand_frame_fake.copy(), cv2.COLOR_BGR2RGB)))
             hand_frame_fake_tensor = hand_frame_fake_tensor.view(1, hand_frame_fake.shape[2], hand_frame_fake.shape[0], hand_frame_fake.shape[1]).cuda() 

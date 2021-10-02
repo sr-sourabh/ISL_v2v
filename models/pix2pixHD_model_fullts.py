@@ -296,10 +296,12 @@ class Pix2PixHDModel(BaseModel):
             face_frame_real.fill(255)
             face_frame_real[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :] = \
                 real_frame_cv[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :]
+            face_frame_real[face_frame_real == 255] = 0
             face_frame_fake = np.zeros(face_shape, dtype=np.uint8)
             face_frame_fake.fill(255)
             face_frame_fake[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :] = \
                 gen_img[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :]
+            face_frame_fake[face_frame_fake == 255] = 0
 
             debugSaveToTrashRealAndGeneratedImage(real_frame_cv, gen_img)
             debugSaveToTrashRealAndFakeHandFrames(hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real)

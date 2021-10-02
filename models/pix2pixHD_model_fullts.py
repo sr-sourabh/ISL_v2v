@@ -288,10 +288,10 @@ class Pix2PixHDModel(BaseModel):
             # loss_D_real_hand = self.criterionGAN(pred_real_hand, True)
 
         if self.opt.face_discrim:
-            face_top_left_x = face_info_real[1][0]
-            face_top_left_y = face_info_real[1][1]
-            face_bottom_right_x = face_info_real[2][0]
-            face_bottom_right_y = face_info_real[2][1]
+            face_top_left_x = face_info_real[1][1]
+            face_top_left_y = face_info_real[1][0]
+            face_bottom_right_x = face_info_real[2][1]
+            face_bottom_right_y = face_info_real[2][0]
             face_label_real = face_info_real[0]
             face_label_fake = face_info_fake[0]
             face_shape = face_label_real.shape

@@ -67,9 +67,12 @@ class Pix2PixHDModel(BaseModel):
             
         if self.isTrain and self.opt.hand_discrim:
             use_sigmoid = opt.no_lsgan
-            # self.netDhand = networks.define_D(6, opt.ndf, opt.n_layers_D, opt.norm, use_sigmoid, 
-            #                               1, False, gpu_ids=self.gpu_ids, netD='hand')
             self.netDhand = networks.define_D(6, opt.ndf, opt.n_layers_D, opt.norm, use_sigmoid, 
+                                          opt.num_D, False, gpu_ids=self.gpu_ids)
+
+        if self.isTrain and self.opt.face_discrim:
+            use_sigmoid = opt.no_lsgan
+            self.netDface = networks.define_D(6, opt.ndf, opt.n_layers_D, opt.norm, use_sigmoid,
                                           opt.num_D, False, gpu_ids=self.gpu_ids)
 
         
@@ -85,6 +88,8 @@ class Pix2PixHDModel(BaseModel):
                 self.load_network(self.netD, 'D', opt.which_epoch, pretrained_path)
                 if opt.hand_discrim:
                     self.load_network(self.netDhand, 'Dhand', opt.which_epoch, pretrained_path)
+                if opt.face_discrim:
+                    self.load_network(self.netDface, 'Dface', opt.which_epoch, pretrained_path)
 
         # set loss functions and optimizers
         if self.isTrain:
@@ -96,6 +101,7 @@ class Pix2PixHDModel(BaseModel):
             # define loss functions
             self.criterionGAN = networks.GANLoss(use_lsgan=not opt.no_lsgan, tensor=self.Tensor)
             self.criterionHandGAN = torch.nn.BCELoss()
+            self.criterionFaceGAN = torch.nn.BCELoss()
             self.criterionFeat = torch.nn.L1Loss()
             if not opt.no_vgg_loss:             
                 self.criterionVGG = networks.VGGLoss(self.gpu_ids)
@@ -103,7 +109,7 @@ class Pix2PixHDModel(BaseModel):
                 self.criterionL1 = torch.nn.L1Loss()
         
             # Loss names
-            self.loss_names = ['G_GAN', 'G_GAN_Feat', 'G_VGG', 'D_real', 'D_fake', 'D_hand_fake', 'D_hand_real']
+            self.loss_names = ['G_GAN', 'G_GAN_Feat', 'G_VGG', 'D_real', 'D_fake', 'D_hand_fake', 'D_hand_real', 'D_face_fake', 'D_face_real']
 
             # initialize optimizers
             # optimizer G
@@ -129,10 +135,11 @@ class Pix2PixHDModel(BaseModel):
                 print('------------- Only training hand discriminator network  ------------')
                 params = list(self.netDhand.parameters())                         
             else:
+                params = list(self.netD.parameters())
                 if opt.hand_discrim:
-                    params = list(self.netD.parameters()) + list(self.netDhand.parameters())   
-                else:
-                    params = list(self.netD.parameters())   
+                    params += list(self.netDhand.parameters())
+                if opt.face_discrim:
+                    params += list(self.netDface.parameters())
 
             self.optimizer_D = torch.optim.Adam(params, lr=opt.lr, betas=(opt.beta1, 0.999))
 
@@ -190,6 +197,10 @@ class Pix2PixHDModel(BaseModel):
     def discriminatehand_cgan(self, label, image, use_pool=False):
         input_concat = torch.cat((label, image.detach()), dim=1)
         return self.netDhand.forward(input_concat)
+
+    def discriminateFaceCGAN(self, label, image, use_pool=False):
+        input_concat = torch.cat((label, image.detach()), dim=1)
+        return self.netDface.forward(input_concat)
 
     def forward(self, label, next_label, image, next_image, zeroshere, hlabel_real, real_frame_cv, left_bbox, right_bbox,
                 face_info_real, infer=False):
@@ -305,6 +316,26 @@ class Pix2PixHDModel(BaseModel):
             debugSaveToTrashRealAndFakeHandFrames(hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real)
             debugSaveToTrashRealAndFakeFaceFrames(face_frame_real, face_frame_fake, face_label_real, face_label_fake)
 
+            # make tensors from images
+            face_label_real_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(face_label_real.copy(), cv2.COLOR_BGR2RGB)))
+            face_label_real_tensor = face_label_real_tensor.view(1, face_label_real.shape[2], face_label_real.shape[0],
+                                                                 face_label_real.shape[1]).cuda()
+            face_frame_fake_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(face_frame_fake.copy(), cv2.COLOR_BGR2RGB)))
+            face_frame_fake_tensor = face_frame_fake_tensor.view(1, face_frame_fake.shape[2], face_frame_fake.shape[0],
+                                                                 face_frame_fake.shape[1]).cuda()
+            face_frame_real_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(face_frame_real.copy(), cv2.COLOR_BGR2RGB)))
+            face_frame_real_tensor = face_frame_real_tensor.view(1, face_frame_real.shape[2], face_frame_real.shape[0],
+                                                                 face_frame_real.shape[1]).cuda()
+            face_label_fake_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(face_label_fake.copy(), cv2.COLOR_BGR2RGB)))
+            face_label_fake_tensor = face_label_fake_tensor.view(1, face_label_fake.shape[2], face_label_fake.shape[0],
+                                                         face_label_fake.shape[1]).cuda()
+
+            # make predictions for face and calculate loss
+            pred_fake_face = self.discriminateFaceCGAN(face_label_fake_tensor, face_frame_fake_tensor)
+            loss_D_fake_face = self.criterionGAN(pred_fake_face, False)
+            pred_real_face = self.discriminateFaceCGAN(face_label_real_tensor, face_frame_real_tensor)
+            loss_D_real_face = self.criterionGAN(pred_real_face, True)
+
         # Fake Detection and Loss
         pred_fake_pool = self.discriminate_4(input_label, next_label, I_0, I_1, use_pool=True)
         loss_D_fake = self.criterionGAN(pred_fake_pool, False)        
@@ -344,7 +375,10 @@ class Pix2PixHDModel(BaseModel):
             loss_G_VGG += (self.criterionL1(I_1, next_image)) * self.opt.lambda_A
         
         # Only return the fake_B image if necessary to save BW
-        return [ [ loss_G_GAN, loss_G_GAN_Feat, loss_G_VGG, loss_D_real, loss_D_fake, loss_D_fake_hand, loss_D_real_hand], None if not infer else [torch.cat((I_0, I_1), dim=3), fake_face, face_residual, initial_I_0, hsk_frame, hand_frame_fake, hand_frame_real] ]
+        return [[ loss_G_GAN, loss_G_GAN_Feat, loss_G_VGG, loss_D_real, loss_D_fake, loss_D_fake_hand, loss_D_real_hand,
+                   loss_D_fake_face, loss_D_real_face],
+                 None if not infer else [torch.cat((I_0, I_1), dim=3), fake_face, face_residual, initial_I_0, hsk_frame,
+                                         hand_frame_fake, hand_frame_real]]
 
     def inference(self, label, prevouts):
 
@@ -373,6 +407,8 @@ class Pix2PixHDModel(BaseModel):
         self.save_network(self.netD, 'D', which_epoch, self.gpu_ids)
         if self.opt.hand_discrim:
             self.save_network(self.netDhand, 'Dhand', which_epoch, self.gpu_ids)
+        if self.opt.face_discrim:
+            self.save_network(self.netDface, 'Dface', which_epoch, self.gpu_ids)
 
     def update_fixed_params(self):
         # after fixing the global generator for a number of iterations, also start finetuning it

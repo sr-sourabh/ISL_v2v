@@ -117,8 +117,8 @@ def getFaceLabelAndTopBottomPoints(results, frame):
     left = positions[1].min()
     right = positions[1].max()
 
-    face_label = cv2.rectangle(face_label , (left, top), (right, bottom), (0, 255, 0), 1)
-    cv2.imwrite('/disk2/shourabh/avr/trash/z_handutil_face_label.jpg', face_label)
+    #face_label = cv2.rectangle(face_label , (left, top), (right, bottom), (0, 255, 0), 1)
+    #cv2.imwrite('/disk2/shourabh/avr/trash/z_handutil_face_label.jpg', face_label)
     return [face_label, [left, top], [right, bottom]]
 
 def get_keypoints_holistic(frame, fix_coords=False, sz=128):

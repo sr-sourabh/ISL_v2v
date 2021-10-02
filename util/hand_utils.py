@@ -116,6 +116,7 @@ def getFaceLabelAndTopBottomPoints(results, frame):
     bottom = positions[0].max()
     left = positions[1].min()
     right = positions[1].max()
+    face_label[face_label == 0] = 255
 
     #face_label = cv2.rectangle(face_label , (left, top), (right, bottom), (0, 255, 0), 1)
     #cv2.imwrite('/disk2/shourabh/avr/trash/z_handutil_face_label.jpg', face_label)

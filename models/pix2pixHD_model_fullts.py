@@ -34,7 +34,7 @@ def debugSaveToTrashRealAndFakeFaceFrames(face_frame_real, face_frame_fake, face
     cv2.imwrite(base_path + 'g_face_frame_real.jpg', face_frame_real)
     cv2.imwrite(base_path + 'h_face_label_real.jpg', face_label_real)
     cv2.imwrite(base_path + 'i_face_frame_fake.jpg', face_frame_fake)
-    cv2.imwrite(base_path + 'face_label_fake.jpg', face_label_fake)
+    cv2.imwrite(base_path + 'j_face_label_fake.jpg', face_label_fake)
 
 
 class Pix2PixHDModel(BaseModel):

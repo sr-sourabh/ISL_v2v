@@ -15,26 +15,16 @@ import torchvision.transforms as transforms
 from PIL import Image
 
 
-def debugSaveToTrashRealAndGeneratedImage(real_frame_cv, gen_img):
+def debugSaveToTrash(real_frame_cv, gen_img, hand_frame_fake, hand_frame_real, hsk_frame,
+                                          hlabel_real, face_frame_real, face_frame_fake, face_label_real, face_label_fake):
     base_path = '/disk2/shourabh/avr/trash/'
-    cv2.imwrite(base_path + 'a_real_frame_cv.jpg', real_frame_cv)
-    cv2.imwrite(base_path + 'c_gen_img.jpg', gen_img)
+    output_image1 = cv2.hconcat([real_frame_cv, gen_img])
+    output_image2 = cv2.hconcat([hand_frame_real, hlabel_real, hand_frame_fake, hsk_frame])
+    output_image3 = cv2.hconcat([face_frame_real, face_frame_fake, face_label_real, face_label_fake])
+    cv2.imwrite(base_path + 'a_full.jpg', output_image1)
+    cv2.imwrite(base_path + 'b_hand.jpg', output_image2)
+    cv2.imwrite(base_path + 'c_face.jpg', output_image3)
 
-
-def debugSaveToTrashRealAndFakeHandFrames(hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real):
-    base_path = '/disk2/shourabh/avr/trash/'
-    cv2.imwrite(base_path + 'e_hlabel_real.jpg', hlabel_real)
-    cv2.imwrite(base_path + 'd_hand_frame_fake.jpg', hand_frame_fake)
-    cv2.imwrite(base_path + 'b_hand_frame_real.jpg', hand_frame_real)
-    cv2.imwrite(base_path + 'f_hlabel_fake.jpg', hsk_frame)
-
-
-def debugSaveToTrashRealAndFakeFaceFrames(face_frame_real, face_frame_fake, face_label_real, face_label_fake):
-    base_path = '/disk2/shourabh/avr/trash/'
-    cv2.imwrite(base_path + 'g_face_frame_real.jpg', face_frame_real)
-    cv2.imwrite(base_path + 'i_face_label_real.jpg', face_label_real)
-    cv2.imwrite(base_path + 'h_face_frame_fake.jpg', face_frame_fake)
-    cv2.imwrite(base_path + 'j_face_label_fake.jpg', face_label_fake)
 
 
 class Pix2PixHDModel(BaseModel):
@@ -312,9 +302,8 @@ class Pix2PixHDModel(BaseModel):
             face_frame_fake[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :] = \
                 gen_img[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :]
 
-            debugSaveToTrashRealAndGeneratedImage(real_frame_cv, gen_img)
-            debugSaveToTrashRealAndFakeHandFrames(hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real)
-            debugSaveToTrashRealAndFakeFaceFrames(face_frame_real, face_frame_fake, face_label_real, face_label_fake)
+            debugSaveToTrash(real_frame_cv, gen_img, hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real,
+                                                  face_frame_real, face_frame_fake, face_label_real, face_label_fake)
 
             # make tensors from images
             face_label_real_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(face_label_real.copy(), cv2.COLOR_BGR2RGB)))

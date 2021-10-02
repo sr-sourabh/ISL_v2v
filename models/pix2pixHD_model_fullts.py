@@ -18,22 +18,22 @@ from PIL import Image
 def debugSaveToTrashRealAndGeneratedImage(real_frame_cv, gen_img):
     base_path = '/disk2/shourabh/avr/trash/'
     cv2.imwrite(base_path + 'a_real_frame_cv.jpg', real_frame_cv)
-    cv2.imwrite(base_path + 'd_gen_img.jpg', gen_img)
+    cv2.imwrite(base_path + 'c_gen_img.jpg', gen_img)
 
 
 def debugSaveToTrashRealAndFakeHandFrames(hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real):
     base_path = '/disk2/shourabh/avr/trash/'
-    cv2.imwrite(base_path + 'c_hlabel_real.jpg', hlabel_real)
-    cv2.imwrite(base_path + 'e_hand_frame_fake.jpg', hand_frame_fake)
+    cv2.imwrite(base_path + 'e_hlabel_real.jpg', hlabel_real)
+    cv2.imwrite(base_path + 'd_hand_frame_fake.jpg', hand_frame_fake)
     cv2.imwrite(base_path + 'b_hand_frame_real.jpg', hand_frame_real)
-    cv2.imwrite(base_path + 'f_hsk_frame.jpg', hsk_frame)
+    cv2.imwrite(base_path + 'f_hlabel_fake.jpg', hsk_frame)
 
 
 def debugSaveToTrashRealAndFakeFaceFrames(face_frame_real, face_frame_fake, face_label_real, face_label_fake):
     base_path = '/disk2/shourabh/avr/trash/'
     cv2.imwrite(base_path + 'g_face_frame_real.jpg', face_frame_real)
-    cv2.imwrite(base_path + 'h_face_label_real.jpg', face_label_real)
-    cv2.imwrite(base_path + 'i_face_frame_fake.jpg', face_frame_fake)
+    cv2.imwrite(base_path + 'i_face_label_real.jpg', face_label_real)
+    cv2.imwrite(base_path + 'h_face_frame_fake.jpg', face_frame_fake)
     cv2.imwrite(base_path + 'j_face_label_fake.jpg', face_label_fake)
 
 

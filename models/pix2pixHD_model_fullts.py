@@ -302,8 +302,8 @@ class Pix2PixHDModel(BaseModel):
             face_frame_fake[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :] = \
                 gen_img[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :]
 
-            debugSaveToTrash(real_frame_cv, gen_img, hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real,
-                                                  face_frame_real, face_frame_fake, face_label_real, face_label_fake)
+            '''debugSaveToTrash(real_frame_cv, gen_img, hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real,
+                                                  face_frame_real, face_frame_fake, face_label_real, face_label_fake)'''
 
             # make tensors from images
             face_label_real_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(face_label_real.copy(), cv2.COLOR_BGR2RGB)))

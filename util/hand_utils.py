@@ -119,7 +119,7 @@ def getFaceLabelAndTopBottomPoints(results, frame):
 
     face_label = cv2.rectangle(face_label , (left, top), (right, bottom), (0, 255, 0), 1)
     cv2.imwrite('/disk2/shourabh/avr/trash/face_label.jpg', face_label)
-    return [face_label, [0, 0], [0, 0]]
+    return [face_label, [left, top], [right, bottom]]
 
 def get_keypoints_holistic(frame, fix_coords=False, sz=128):
     lefthnd_pts = np.zeros((21, 2))

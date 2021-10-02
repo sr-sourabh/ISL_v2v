@@ -15,18 +15,26 @@ import torchvision.transforms as transforms
 from PIL import Image
 
 
-def debugSaveToTrashRealAndGeneratedImage(hlabel_real, real_frame_cv, gen_img):
+def debugSaveToTrashRealAndGeneratedImage(real_frame_cv, gen_img):
     base_path = '/disk2/shourabh/avr/trash/'
-    cv2.imwrite(base_path + 'hlabel_real.jpg', hlabel_real)
-    cv2.imwrite(base_path + 'real_frame_cv.jpg', real_frame_cv)
-    cv2.imwrite(base_path + 'gen_img.jpg', gen_img)
+    cv2.imwrite(base_path + 'a_real_frame_cv.jpg', real_frame_cv)
+    cv2.imwrite(base_path + 'd_gen_img.jpg', gen_img)
 
 
-def debugSaveToTrashRealAndFakeFrames(hand_frame_fake, hand_frame_real, hsk_frame):
+def debugSaveToTrashRealAndFakeHandFrames(hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real):
     base_path = '/disk2/shourabh/avr/trash/'
-    cv2.imwrite(base_path + 'hand_frame_fake.jpg', hand_frame_fake)
-    cv2.imwrite(base_path + 'hand_frame_real.jpg', hand_frame_real)
-    cv2.imwrite(base_path + 'hsk_frame.jpg', hsk_frame)
+    cv2.imwrite(base_path + 'c_hlabel_real.jpg', hlabel_real)
+    cv2.imwrite(base_path + 'e_hand_frame_fake.jpg', hand_frame_fake)
+    cv2.imwrite(base_path + 'b_hand_frame_real.jpg', hand_frame_real)
+    cv2.imwrite(base_path + 'f_hsk_frame.jpg', hsk_frame)
+
+
+def debugSaveToTrashRealAndFakeFaceFrames(face_frame_real, face_frame_fake, face_label_real, face_label_fake):
+    base_path = '/disk2/shourabh/avr/trash/'
+    cv2.imwrite(base_path + 'g_face_frame_real.jpg', face_frame_real)
+    cv2.imwrite(base_path + 'h_face_label_real.jpg', face_label_real)
+    cv2.imwrite(base_path + 'i_face_frame_fake.jpg', face_frame_fake)
+    cv2.imwrite(base_path + 'face_label_fake.jpg', face_label_fake)
 
 
 class Pix2PixHDModel(BaseModel):
@@ -208,7 +216,7 @@ class Pix2PixHDModel(BaseModel):
         
         hsk_frame = np.zeros(gen_img.shape, dtype=np.uint8)
         hsk_frame.fill(255)
-        debugSaveToTrashRealAndGeneratedImage(hlabel_real, real_frame_cv, gen_img)
+        debugSaveToTrashRealAndGeneratedImage(real_frame_cv, gen_img)
 
         hand_frame_fake = np.zeros(gen_img.shape, dtype=np.uint8)
         hand_frame_fake.fill(255)
@@ -255,7 +263,7 @@ class Pix2PixHDModel(BaseModel):
                 hand_utils.display_single_hand_skleton(hsk_frame, lfpts)
                 hand_utils.display_single_hand_skleton(hsk_frame, rfpts)
 
-            debugSaveToTrashRealAndFakeFrames(hand_frame_fake, hand_frame_real, hsk_frame)
+            debugSaveToTrashRealAndFakeHandFrames(hand_frame_fake, hand_frame_real, hsk_frame, hlabel_real)
 
             hand_frame_fake_tensor = self.data_transforms(Image.fromarray(cv2.cvtColor(hand_frame_fake.copy(), cv2.COLOR_BGR2RGB)))
             hand_frame_fake_tensor = hand_frame_fake_tensor.view(1, hand_frame_fake.shape[2], hand_frame_fake.shape[0], hand_frame_fake.shape[1]).cuda() 
@@ -295,6 +303,8 @@ class Pix2PixHDModel(BaseModel):
             face_frame_fake.fill(255)
             face_frame_fake[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :] = \
                 real_frame_cv[face_top_left_x:face_bottom_right_x, face_top_left_y:face_bottom_right_y, :]
+
+            debugSaveToTrashRealAndFakeFaceFrames(face_frame_real, face_frame_fake, face_label_real, face_label_fake)
 
 
 

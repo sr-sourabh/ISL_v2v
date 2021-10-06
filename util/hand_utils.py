@@ -104,13 +104,19 @@ def getFaceLabelAndTopBottomPoints(results, frame):
         return [face_label, [0, 0], [0, 0]]
 
     face_label.flags.writeable = True
-    mp_drawing.draw_landmarks(
+    '''mp_drawing.draw_landmarks(
         face_label,
         results.face_landmarks,
         mp_face_mesh.FACEMESH_TESSELATION,
         landmark_drawing_spec=None,
         connection_drawing_spec=mp_drawing_styles
-            .get_default_face_mesh_tesselation_style())
+            .get_default_face_mesh_tesselation_style())'''
+    mp_drawing.draw_landmarks(
+        face_label,
+        results.face_landmarks,
+        mp_face_mesh.POSE_CONNECTIONS,
+        landmark_drawing_spec=mp_drawing_styles.
+            get_default_pose_landmarks_style())
 
     positions = np.nonzero(face_label)
     top = positions[0].min()

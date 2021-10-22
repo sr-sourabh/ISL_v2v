@@ -114,9 +114,10 @@ def getFaceLabelAndTopBottomPoints(results, frame):
     mp_drawing.draw_landmarks(
         face_label,
         results.face_landmarks,
-        mp_face_mesh.POSE_CONNECTIONS,
-        landmark_drawing_spec=mp_drawing_styles.
-            get_default_pose_landmarks_style())
+        mp_holistic.FACEMESH_CONTOURS,
+        landmark_drawing_spec=None,
+        connection_drawing_spec=mp_drawing_styles
+            .get_default_face_mesh_contours_style())
 
     positions = np.nonzero(face_label)
     top = positions[0].min()

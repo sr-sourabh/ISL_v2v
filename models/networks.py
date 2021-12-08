@@ -378,7 +378,7 @@ class SPADEResnetBlock(nn.Module):
 
         # define normalization layers
         #spade_config_str = opt.norm_G.replace('spectral', '')
-        spade_config_str = 'spadebatch3x3'
+        spade_config_str = 'spadeinstance3x3'
         self.norm_0 = SPADE(spade_config_str, fin, input_nc)
         self.norm_1 = SPADE(spade_config_str, fmiddle, input_nc)
         if self.learned_shortcut:

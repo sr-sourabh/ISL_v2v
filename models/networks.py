@@ -204,7 +204,7 @@ class LocalEnhancer(nn.Module):
             model_upsample = getattr(self, 'model' + str(n_local_enhancers) + '_3')
             input_i = input_downsampled[self.n_local_enhancers-n_local_enhancers]
             temp = model_downsample(input_i) + output_prev
-            print(temp.shape, input.shape, input_i.shape)
+            print(model_upsample_spade_resnet)
             output_spade = model_upsample_spade_resnet(temp, input)
             output_prev = model_upsample(output_spade)
         return output_prev
@@ -329,6 +329,7 @@ class SPADE(nn.Module):
 
         # Part 1. generate parameter-free normalized activations
         normalized = self.param_free_norm(x)
+        print('hello')
 
         # Part 2. produce scaling and bias conditioned on semantic map
         segmap = F.interpolate(segmap, size=x.size()[2:], mode='nearest')

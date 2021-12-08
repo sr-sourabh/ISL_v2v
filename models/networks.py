@@ -304,7 +304,7 @@ class ResnetBlock(nn.Module):
 # |label_nc|: the #channels of the input semantic map, hence the input dim of SPADE
 class SPADE(nn.Module):
     def __init__(self, config_text, norm_nc, label_nc):
-        super().__init__()
+        super(SPADE, self).__init__()
 
         assert config_text.startswith('spade')
         parsed = re.search('spade(\D+)(\d)x\d', config_text)
@@ -358,7 +358,7 @@ class SPADE(nn.Module):
 # The code was inspired from https://github.com/LMescheder/GAN_stability.
 class SPADEResnetBlock(nn.Module):
     def __init__(self, fin, fout, input_nc):
-        super().__init__()
+        super(SPADEResnetBlock, self).__init__()
         # Attributes
         self.learned_shortcut = (fin != fout)
         fmiddle = min(fin, fout)

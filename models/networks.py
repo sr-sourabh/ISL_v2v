@@ -20,9 +20,9 @@ def weights_init(m):
     if classname.find('Conv') != -1:
         m.weight.data.normal_(0.0, 0.02)
     elif classname.find('BatchNorm2d') != -1:
-        #print('sss', m.weight)
-        #m.weight.data.normal_(1.0, 0.02)
-        #m.bias.data.fill_(0)
+        # print('sss', m.weight)
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
         pass
 
 def get_norm_layer(norm_type='instance'):
@@ -243,7 +243,8 @@ class GlobalGenerator(nn.Module):
             
     def forward(self, input):
         x1 = self.model1(input)
-        x2 = self.model2(x = x1, seg = input)
+        print(self.model2)
+        x2 = self.model2(x1, input)
         return self.model3(x2)
         
 # Define a resnet block

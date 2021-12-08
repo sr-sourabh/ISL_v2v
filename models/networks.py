@@ -20,6 +20,7 @@ def weights_init(m):
     if classname.find('Conv') != -1:
         m.weight.data.normal_(0.0, 0.02)
     elif classname.find('BatchNorm2d') != -1:
+        print('sss', m)
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
 

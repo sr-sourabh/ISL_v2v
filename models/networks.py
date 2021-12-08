@@ -21,8 +21,8 @@ def weights_init(m):
         m.weight.data.normal_(0.0, 0.02)
     elif classname.find('BatchNorm2d') != -1:
         # print('sss', m.weight)
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
+        #m.weight.data.normal_(1.0, 0.02)
+        #m.bias.data.fill_(0)
         pass
 
 def get_norm_layer(norm_type='instance'):

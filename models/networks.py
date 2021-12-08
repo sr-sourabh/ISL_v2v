@@ -243,7 +243,7 @@ class GlobalGenerator(nn.Module):
             
     def forward(self, input):
         x1 = self.model1(input)
-        print(self.model2)
+        print(x1.shape, input.shape)
         x2 = self.model2(x1, input)
         return self.model3(x2)
         
@@ -326,11 +326,11 @@ class SPADE(nn.Module):
 
         pw = ks // 2
         self.mlp_shared = nn.Sequential(
-            nn.Conv2d(label_nc, nhidden, kernel_size=ks, padding=pw),
+            nn.Conv2d(label_nc, nhidden, kernel_size=(ks,ks), padding=pw),
             nn.ReLU()
         )
-        self.mlp_gamma = nn.Conv2d(nhidden, norm_nc, kernel_size=ks, padding=pw)
-        self.mlp_beta = nn.Conv2d(nhidden, norm_nc, kernel_size=ks, padding=pw)
+        self.mlp_gamma = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
+        self.mlp_beta = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
 
     def forward(self, x, segmap):
 
@@ -364,10 +364,10 @@ class SPADEResnetBlock(nn.Module):
         fmiddle = min(fin, fout)
 
         # create conv layers
-        self.conv_0 = nn.Conv2d(fin, fmiddle, kernel_size=3, padding=1)
-        self.conv_1 = nn.Conv2d(fmiddle, fout, kernel_size=3, padding=1)
+        self.conv_0 = nn.Conv2d(fin, fmiddle, kernel_size=(3,3), padding=1)
+        self.conv_1 = nn.Conv2d(fmiddle, fout, kernel_size=(3,3), padding=1)
         if self.learned_shortcut:
-            self.conv_s = nn.Conv2d(fin, fout, kernel_size=1, bias=False)
+            self.conv_s = nn.Conv2d(fin, fout, kernel_size=(1,1), bias=False)
 
         # apply spectral norm if specified
         '''if 'spectral' in opt.norm_G:

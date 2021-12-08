@@ -228,6 +228,7 @@ class GlobalGenerator(nn.Module):
         model2 = []
         for i in range(n_blocks):
             # model2 += [ResnetBlock(ngf * mult, padding_type=padding_type, activation=activation, norm_layer=norm_layer)]
+            # model2 += [SPADEResnetBlock(ngf * mult, ngf * mult, input_nc)]
             model2 = SPADEResnetBlock(ngf * mult, ngf * mult, input_nc)
         
         ### upsample
@@ -238,13 +239,14 @@ class GlobalGenerator(nn.Module):
                        norm_layer(int(ngf * mult / 2)), activation]
         model3 += [nn.ReflectionPad2d(3), nn.Conv2d(ngf, output_nc, kernel_size=7, padding=0), nn.Tanh()]
         self.model1 = nn.Sequential(*model1)
+        #self.model2 = nn.Sequential(*model2)
         self.model2 = model2
         self.model3 = nn.Sequential(*model3)
             
     def forward(self, input):
         x1 = self.model1(input)
         print(x1.shape, input.shape)
-        x2 = self.model2(1, 2)
+        x2 = self.model2(x1, input)
         return self.model3(x2)
         
 # Define a resnet block

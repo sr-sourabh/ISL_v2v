@@ -300,6 +300,7 @@ class SPADE(nn.Module):
         param_free_norm_type = str(parsed.group(1))
         ks = int(parsed.group(2))
 
+        print(param_free_norm_type, ks, parsed)
         if param_free_norm_type == 'instance':
             self.param_free_norm = nn.InstanceNorm2d(norm_nc, affine=False)
         #elif param_free_norm_type == 'syncbatch':

@@ -204,7 +204,7 @@ class LocalEnhancer(nn.Module):
             model_upsample = getattr(self, 'model' + str(n_local_enhancers) + '_3')
             input_i = input_downsampled[self.n_local_enhancers-n_local_enhancers]
             temp = model_downsample(input_i) + output_prev
-            print(temp)
+            print(temp.shape, input.shape, input_i.shape)
             output_spade = model_upsample_spade_resnet(temp, input)
             output_prev = model_upsample(output_spade)
         return output_prev

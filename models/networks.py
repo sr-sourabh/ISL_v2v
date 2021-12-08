@@ -187,7 +187,7 @@ class LocalEnhancer(nn.Module):
 
         self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False)
 
-    def forward(self, input, seg=None):
+    def forward(self, input):
         ### create input pyramid
         input_downsampled = [input]
         for i in range(self.n_local_enhancers):

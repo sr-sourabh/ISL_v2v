@@ -204,7 +204,6 @@ class LocalEnhancer(nn.Module):
             model_upsample = getattr(self, 'model' + str(n_local_enhancers) + '_3')
             input_i = input_downsampled[self.n_local_enhancers-n_local_enhancers]
             temp = model_downsample(input_i) + output_prev
-            print(model_upsample_spade_resnet)
             output_spade = model_upsample_spade_resnet(temp, input)
             output_prev = model_upsample(output_spade)
         return output_prev
@@ -245,7 +244,6 @@ class GlobalGenerator(nn.Module):
             
     def forward(self, input):
         x1 = self.model1(input)
-        print(x1.shape, input.shape)
         x2 = self.model2(x1, input)
         return self.model3(x2)
         
@@ -335,7 +333,6 @@ class SPADE(nn.Module):
         self.mlp_beta = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
 
     def forward(self, x, segmap):
-        print('bbbbbbbell')
         # Part 1. generate parameter-free normalized activations
         normalized = self.param_free_norm(x)
 
@@ -389,7 +386,6 @@ class SPADEResnetBlock(nn.Module):
     # note the resnet block with SPADE also takes in |seg|,
     # the semantic segmentation map as input
     def forward(self, x, seg):
-        print('hell')
         x_s = self.shortcut(x, seg)
 
         dx = self.conv_0(self.actvn(self.norm_0(x, seg)))

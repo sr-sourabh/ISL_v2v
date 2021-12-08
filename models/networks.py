@@ -244,7 +244,7 @@ class GlobalGenerator(nn.Module):
     def forward(self, input):
         x1 = self.model1(input)
         print(x1.shape, input.shape)
-        x2 = self.model2(x1, input)
+        x2 = self.model2(1, 2)
         return self.model3(x2)
         
 # Define a resnet block

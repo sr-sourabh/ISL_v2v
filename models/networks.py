@@ -216,28 +216,33 @@ class GlobalGenerator(nn.Module):
         super(GlobalGenerator, self).__init__()        
         activation = nn.ReLU(True)        
 
-        model = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0), norm_layer(ngf), activation]
+        model1 = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0), norm_layer(ngf), activation]
         ### downsample
         for i in range(n_downsampling):
             mult = 2**i
-            model += [nn.Conv2d(ngf * mult, ngf * mult * 2, kernel_size=3, stride=2, padding=1),
+            model1 += [nn.Conv2d(ngf * mult, ngf * mult * 2, kernel_size=3, stride=2, padding=1),
                       norm_layer(ngf * mult * 2), activation]
 
         ### resnet blocks
         mult = 2**n_downsampling
+        model2 = []
         for i in range(n_blocks):
-            model += [ResnetBlock(ngf * mult, padding_type=padding_type, activation=activation, norm_layer=norm_layer)]
+            # model2 += [ResnetBlock(ngf * mult, padding_type=padding_type, activation=activation, norm_layer=norm_layer)]
+            model2 += [SPADEResnetBlock(ngf * mult, ngf * mult, input_nc)]
         
-        ### upsample         
+        ### upsample
+        model3 = []
         for i in range(n_downsampling):
             mult = 2**(n_downsampling - i)
-            model += [nn.ConvTranspose2d(ngf * mult, int(ngf * mult / 2), kernel_size=3, stride=2, padding=1, output_padding=1),
+            model3 += [nn.ConvTranspose2d(ngf * mult, int(ngf * mult / 2), kernel_size=3, stride=2, padding=1, output_padding=1),
                        norm_layer(int(ngf * mult / 2)), activation]
-        model += [nn.ReflectionPad2d(3), nn.Conv2d(ngf, output_nc, kernel_size=7, padding=0), nn.Tanh()]        
-        self.model = nn.Sequential(*model)
+        model3 += [nn.ReflectionPad2d(3), nn.Conv2d(ngf, output_nc, kernel_size=7, padding=0), nn.Tanh()]
+        self.model1 = nn.Sequential(*model1)
+        self.model2 = nn.Sequential(*model2)
+        self.model3 = nn.Sequential(*model3)
             
     def forward(self, input):
-        return self.model(input)             
+        return self.model3(self.model2(self.model1(input), input))
         
 # Define a resnet block
 class ResnetBlock(nn.Module):

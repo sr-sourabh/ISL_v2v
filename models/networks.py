@@ -242,7 +242,9 @@ class GlobalGenerator(nn.Module):
         self.model3 = nn.Sequential(*model3)
             
     def forward(self, input):
-        return self.model3(self.model2(self.model1(input), input))
+        x1 = self.model1(input)
+        x2 = self.model2(x1, input)
+        return self.model3(x2)
         
 # Define a resnet block
 class ResnetBlock(nn.Module):

@@ -245,7 +245,6 @@ class GlobalGenerator(nn.Module):
         # self.model2 = model2
         self.model3 = nn.Sequential(*model3)'''
 
-        ngf = 256
         # print(ngf)
         self.sw, self.sh = self.compute_latent_vector_size()
 
@@ -255,6 +254,8 @@ class GlobalGenerator(nn.Module):
 
         self.G_middle_0 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
         self.G_middle_1 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+        self.G_middle_2 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+        self.G_middle_3 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
 
         self.up_0 = SPADEResnetBlock(16 * ngf, 8 * ngf, input_nc)
         self.up_1 = SPADEResnetBlock(8 * ngf, 4 * ngf, input_nc)
@@ -267,7 +268,7 @@ class GlobalGenerator(nn.Module):
 
     def compute_latent_vector_size(self):
         num_up_layers = 5
-        crop_size = 128
+        crop_size = 512
         aspect_ratio = 2
         sw = crop_size // (2 ** num_up_layers)
         sh = round(sw / aspect_ratio)
@@ -284,12 +285,9 @@ class GlobalGenerator(nn.Module):
         x = F.interpolate(seg, size=(self.sh, self.sw))
         x = self.fc(x)
         x = self.head_0(x, seg)
-        print(self.sh, self.sw)
-        print(x.shape)
         x = self.up(x)
-        print(x.shape)
-        x = self.G_middle_0(x, seg)
 
+        x = self.G_middle_0(x, seg)
         x = self.G_middle_1(x, seg)
 
         x = self.up(x)

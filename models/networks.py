@@ -286,7 +286,9 @@ class GlobalGenerator(nn.Module):
         x = self.head_0(x, seg)
         print(x.shape)
         x = self.up(x)
+        print(x.shape)
         x = self.G_middle_0(x, seg)
+        print(x.shape)
 
         x = self.G_middle_1(x, seg)
 

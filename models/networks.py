@@ -284,8 +284,10 @@ class GlobalGenerator(nn.Module):
         x = F.interpolate(seg, size=(self.sh, self.sw))
         x = self.fc(x)
         x = self.head_0(x, seg)
+        print(self.sh, self.sw)
         print(x.shape)
         x = self.up(x)
+        print(x.shape)
         x = self.G_middle_0(x, seg)
 
         x = self.G_middle_1(x, seg)
@@ -298,7 +300,6 @@ class GlobalGenerator(nn.Module):
         x = self.up_2(x, seg)
         x = self.up(x)
         x = self.up_3(x, seg)
-        print(x.shape)
 
         x = self.conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)

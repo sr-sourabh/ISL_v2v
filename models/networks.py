@@ -244,7 +244,9 @@ class GlobalGenerator(nn.Module):
         # self.model2 = nn.Sequential(*model2)
         # self.model2 = model2
         self.model3 = nn.Sequential(*model3)'''
-        print(ngf)
+
+        ngf = 256
+        # print(ngf)
         self.sw, self.sh = self.compute_latent_vector_size()
 
         self.fc = nn.Conv2d(input_nc, 16 * ngf, 3, padding=1)

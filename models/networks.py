@@ -213,7 +213,8 @@ class GlobalGenerator(nn.Module):
                  padding_type='reflect'):
         assert(n_blocks >= 0)
         super(GlobalGenerator, self).__init__()        
-        activation = nn.ReLU(True)        
+        activation = nn.ReLU(True)
+        self.n_blocks = n_blocks
 
         model1 = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0), norm_layer(ngf), activation]
         ### downsample
@@ -227,8 +228,9 @@ class GlobalGenerator(nn.Module):
         model2 = []
         for i in range(n_blocks):
             # model2 += [ResnetBlock(ngf * mult, padding_type=padding_type, activation=activation, norm_layer=norm_layer)]
-            model2 += [SPADEResnetBlock(ngf * mult, ngf * mult, input_nc)]
+            #model2 += [SPADEResnetBlock(ngf * mult, ngf * mult, input_nc)]
             # model2 = SPADEResnetBlock(ngf * mult, ngf * mult, input_nc)
+            setattr(self, 'model_spade_' + str(i), SPADEResnetBlock(ngf * mult, ngf * mult, input_nc))
         
         ### upsample
         model3 = []
@@ -238,13 +240,15 @@ class GlobalGenerator(nn.Module):
                        norm_layer(int(ngf * mult / 2)), activation]
         model3 += [nn.ReflectionPad2d(3), nn.Conv2d(ngf, output_nc, kernel_size=7, padding=0), nn.Tanh()]
         self.model1 = nn.Sequential(*model1)
-        self.model2 = nn.Sequential(*model2)
+        # self.model2 = nn.Sequential(*model2)
         # self.model2 = model2
         self.model3 = nn.Sequential(*model3)
             
     def forward(self, input):
         x1 = self.model1(input)
-        x2, _ = self.model2(x1, input)
+        x2 = x1
+        for i in range(self.n_blocks):
+            x2 = getattr(self, 'model_spade_' + str(i))(x2, input)
         return self.model3(x2)
         
 # Define a resnet block
@@ -393,7 +397,7 @@ class SPADEResnetBlock(nn.Module):
 
         out = x_s + dx
 
-        return out, seg
+        return out
 
     def shortcut(self, x, seg):
         if self.learned_shortcut:

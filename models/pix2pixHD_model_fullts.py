@@ -211,6 +211,7 @@ class Pix2PixHDModel(BaseModel):
         input_concat = torch.cat((input_label, zeroshere), dim=1) 
 
         I_0 = self.netG.forward(input_concat)
+        print(I_0.shape)
         
         gen_img = util.tensor2im(I_0.data[0])
         gen_img = cv2.cvtColor(gen_img, cv2.COLOR_RGB2BGR)

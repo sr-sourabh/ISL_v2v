@@ -245,7 +245,7 @@ class GlobalGenerator(nn.Module):
         # self.model2 = model2
         self.model3 = nn.Sequential(*model3)'''
 
-        ngf = 128
+        ngf = 80
         # print(ngf)
         self.sw, self.sh = self.compute_latent_vector_size()
 

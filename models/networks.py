@@ -284,7 +284,7 @@ class GlobalGenerator(nn.Module):
         x = F.interpolate(seg, size=(self.sh, self.sw))
         x = self.fc(x)
         x = self.head_0(x, seg)
-
+        print(x.shape)
         x = self.up(x)
         x = self.G_middle_0(x, seg)
 

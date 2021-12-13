@@ -247,7 +247,7 @@ class GlobalGenerator(nn.Module):
 
         self.sw, self.sh = self.compute_latent_vector_size()
 
-        self.fc = nn.Conv2d(self.opt.semantic_nc, 16 * ngf, 3, padding=1)
+        self.fc = nn.Conv2d(input_nc, 16 * ngf, 3, padding=1)
 
         self.head_0 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
 

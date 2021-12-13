@@ -216,24 +216,25 @@ class GlobalGenerator(nn.Module):
         activation = nn.ReLU(True)
         self.n_blocks = n_blocks
 
-        model1 = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0), norm_layer(ngf), activation]
+        #model1 = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0), norm_layer(ngf), activation]
         ### downsample
-        for i in range(n_downsampling):
+        '''for i in range(n_downsampling):
             mult = 2**i
             model1 += [nn.Conv2d(ngf * mult, ngf * mult * 2, kernel_size=3, stride=2, padding=1),
-                      norm_layer(ngf * mult * 2), activation]
+                      norm_layer(ngf * mult * 2), activation]'''
 
         ### resnet blocks
         mult = 2**n_downsampling
         model2 = []
-        for i in range(n_blocks):
+        '''for i in range(n_blocks):
             # model2 += [ResnetBlock(ngf * mult, padding_type=padding_type, activation=activation, norm_layer=norm_layer)]
             #model2 += [SPADEResnetBlock(ngf * mult, ngf * mult, input_nc)]
             # model2 = SPADEResnetBlock(ngf * mult, ngf * mult, input_nc)
-            setattr(self, 'model_spade_' + str(i), SPADEResnetBlock(ngf * mult, ngf * mult, input_nc))
+            setattr(self, 'model_spade_' + str(i), SPADEResnetBlock(ngf * mult, ngf * mult, input_nc))'''
+
         
         ### upsample
-        model3 = []
+        '''model3 = []
         for i in range(n_downsampling):
             mult = 2**(n_downsampling - i)
             model3 += [nn.ConvTranspose2d(ngf * mult, int(ngf * mult / 2), kernel_size=3, stride=2, padding=1, output_padding=1),
@@ -242,14 +243,64 @@ class GlobalGenerator(nn.Module):
         self.model1 = nn.Sequential(*model1)
         # self.model2 = nn.Sequential(*model2)
         # self.model2 = model2
-        self.model3 = nn.Sequential(*model3)
+        self.model3 = nn.Sequential(*model3)'''
+
+        self.sw, self.sh = self.compute_latent_vector_size()
+
+        self.fc = nn.Conv2d(self.opt.semantic_nc, 16 * ngf, 3, padding=1)
+
+        self.head_0 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+
+        self.G_middle_0 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+        self.G_middle_1 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+
+        self.up_0 = SPADEResnetBlock(16 * ngf, 8 * ngf, input_nc)
+        self.up_1 = SPADEResnetBlock(8 * ngf, 4 * ngf, input_nc)
+        self.up_2 = SPADEResnetBlock(4 * ngf, 2 * ngf, input_nc)
+        self.up_3 = SPADEResnetBlock(2 * ngf, 1 * ngf, input_nc)
+
+        final_nc = ngf
+        self.conv_img = nn.Conv2d(final_nc, 3, (3, 3), padding=1)
+        self.up = nn.Upsample(scale_factor=2)
+
+    def compute_latent_vector_size(self):
+        num_up_layers = 5
+        crop_size = 128
+        aspect_ratio = 2
+        sw = crop_size // (2 ** num_up_layers)
+        sh = round(sw / aspect_ratio)
+        return sw, sh
             
     def forward(self, input):
-        x1 = self.model1(input)
+        seg = input
+        '''x1 = self.model1(input)
         x2 = x1
         for i in range(self.n_blocks):
             x2 = getattr(self, 'model_spade_' + str(i))(x2, input)
-        return self.model3(x2)
+        return self.model3(x2)'''
+
+        x = F.interpolate(seg, size=(self.sh, self.sw))
+        x = self.fc(x)
+        x = self.head_0(x, seg)
+
+        x = self.up(x)
+        x = self.G_middle_0(x, seg)
+
+        x = self.G_middle_1(x, seg)
+
+        x = self.up(x)
+        x = self.up_0(x, seg)
+        x = self.up(x)
+        x = self.up_1(x, seg)
+        x = self.up(x)
+        x = self.up_2(x, seg)
+        x = self.up(x)
+        x = self.up_3(x, seg)
+
+        x = self.conv_img(F.leaky_relu(x, 2e-1))
+        x = F.tanh(x)
+
+        return x
         
 # Define a resnet block
 class ResnetBlock(nn.Module):

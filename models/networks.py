@@ -286,9 +286,7 @@ class GlobalGenerator(nn.Module):
         x = self.head_0(x, seg)
         print(x.shape)
         x = self.up(x)
-        print(x.shape)
         x = self.G_middle_0(x, seg)
-        print(x.shape)
 
         x = self.G_middle_1(x, seg)
 
@@ -300,6 +298,7 @@ class GlobalGenerator(nn.Module):
         x = self.up_2(x, seg)
         x = self.up(x)
         x = self.up_3(x, seg)
+        print(x.shape)
 
         x = self.conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)

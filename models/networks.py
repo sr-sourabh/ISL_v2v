@@ -210,14 +210,13 @@ class LocalEnhancer(nn.Module):
         for n in range(1, n_local_enhancers + 1):
             ### downsample
             # ngf_global = ngf * (2 ** (n_local_enhancers - n))
-            ngf_global = 20
+            ngf_global = 10
             input_nc_by_2 = input_nc//2
             model_downsample = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf_global, kernel_size=7, padding=0), nn.ReLU(True),
                                 nn.Conv2d(ngf_global, 3, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
             setattr(self, 'model_downsample_' + str(n), nn.Sequential(*model_downsample))
 
             ### residual blocks
-            print('input_nc: ', input_nc)
             sw, sh = self.compute_latent_vector_size()
             final_nc = ngf_global
             setattr(self, 'spade_' + str(n) + '_sw', sw - (2 ** (n_local_enhancers - n)) + 1)
@@ -257,7 +256,6 @@ class LocalEnhancer(nn.Module):
 
         # spade variation
         seg = input
-        print('Original: ', input.shape)
 
         ### create input pyramid
         input_downsampled = [input]
@@ -371,7 +369,6 @@ class GlobalGenerator(nn.Module):
         self.model3 = nn.Sequential(*model3)'''
 
         ngf = 20
-        # print(ngf)
         self.sw, self.sh = self.compute_latent_vector_size()
 
         self.fc = nn.Conv2d(input_nc, 16 * ngf, 3, padding=1)

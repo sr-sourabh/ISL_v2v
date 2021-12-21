@@ -302,6 +302,7 @@ class LocalEnhancer(nn.Module):
             up_3 = getattr(self, 'spade_' + str(n) + '_up_3')
             conv_img = getattr(self, 'spade_' + str(n) + '_conv_img')
 
+            print(sh, sw)
             x = F.interpolate(seg, size=(sh, sw))
             x = fc(x)
             x = head_0(x, seg)

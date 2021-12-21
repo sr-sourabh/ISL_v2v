@@ -314,7 +314,6 @@ class LocalEnhancer(nn.Module):
             x = up(x)
             x = up_1(x, seg)
             x = up(x)
-            print(x.shape, seg.shape)
             x = up_2(x, seg)
             x = up(x)
             x = up_3(x, seg)

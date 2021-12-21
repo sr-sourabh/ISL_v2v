@@ -225,7 +225,6 @@ class LocalEnhancer(nn.Module):
             setattr(self, 'spade_' + str(n) + '_head_0', SPADEResnetBlock(4 * ngf_global, 4 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_G_middle_0', SPADEResnetBlock(4 * ngf_global, 4 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_G_middle_1', SPADEResnetBlock(4 * ngf_global, 4 * ngf_global, input_nc_by_2))
-            setattr(self, 'spade_' + str(n) + '_G_middle_2',SPADEResnetBlock(4 * ngf_global, 4 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_up_0', SPADEResnetBlock(4 * ngf_global, 2 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_up_1', SPADEResnetBlock(2 * ngf_global, 2 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_up_2', SPADEResnetBlock(2 * ngf_global, 2 * ngf_global, input_nc_by_2))
@@ -297,7 +296,6 @@ class LocalEnhancer(nn.Module):
             up = getattr(self, 'spade_' + str(n) + '_up')
             G_middle_0 = getattr(self, 'spade_' + str(n) + '_G_middle_0')
             G_middle_1 = getattr(self, 'spade_' + str(n) + '_G_middle_1')
-            G_middle_2 = getattr(self, 'spade_' + str(n) + '_G_middle_2')
             up_0 = getattr(self, 'spade_' + str(n) + '_up_0')
             up_1 = getattr(self, 'spade_' + str(n) + '_up_1')
             up_2 = getattr(self, 'spade_' + str(n) + '_up_2')
@@ -310,10 +308,8 @@ class LocalEnhancer(nn.Module):
             x = up(x)
 
             x = G_middle_0(x, seg)
-            x = G_middle_1(x, seg)
-
-            x = G_middle_2(x, seg)
             x = up(x)
+            x = G_middle_1(x, seg)
 
             x = up(x)
             x = up_0(x, seg)

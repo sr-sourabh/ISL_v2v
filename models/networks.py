@@ -312,6 +312,7 @@ class LocalEnhancer(nn.Module):
             x = up(x)
             x = up_1(x, seg)
             x = up(x)
+            print(x.shape, seg.shape)
             x = up_2(x, seg)
             x = up(x)
             x = up_3(x, seg)
@@ -503,7 +504,6 @@ class SPADE(nn.Module):
         self.mlp_beta = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
 
     def forward(self, x, segmap):
-        print(x.shape, segmap.shape)
         # Part 1. generate parameter-free normalized activations
         normalized = self.param_free_norm(x)
 

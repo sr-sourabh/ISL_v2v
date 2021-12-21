@@ -210,7 +210,7 @@ class LocalEnhancer(nn.Module):
         for n in range(1, n_local_enhancers + 1):
             ### downsample
             # ngf_global = ngf * (2 ** (n_local_enhancers - n))
-            ngf_global = 2
+            ngf_global = 6
             input_nc_by_2 = input_nc//2
             model_downsample = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf_global, kernel_size=7, padding=0), nn.ReLU(True),
                                 nn.Conv2d(ngf_global, 3, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
@@ -323,7 +323,6 @@ class LocalEnhancer(nn.Module):
             x = conv_img(F.leaky_relu(x, 2e-1))
             x = F.tanh(x)
 
-        print('final x: ', x.shape)
         return x
 
 

@@ -260,7 +260,6 @@ class LocalEnhancer(nn.Module):
         for i in range(self.n_local_enhancers):
             input_downsampled.append(self.downsample(input_downsampled[-1]))
 
-        print('sss ', self.global_sh, self.global_sw)
         x = F.interpolate(seg, size=(self.global_sh, self.global_sw))
         x = self.global_fc(x)
         x = self.global_head_0(x, seg)
@@ -289,7 +288,6 @@ class LocalEnhancer(nn.Module):
             model_downsample = getattr(self, 'model_downsample_' + str(n))
             output = model_downsample(input_i)
             x += output
-            print(x.shape)
             sh = getattr(self, 'spade_' + str(n) + '_sh')
             sw = getattr(self, 'spade_' + str(n) + '_sw')
             fc = getattr(self, 'spade_' + str(n) + '_fc')
@@ -303,8 +301,7 @@ class LocalEnhancer(nn.Module):
             up_3 = getattr(self, 'spade_' + str(n) + '_up_3')
             conv_img = getattr(self, 'spade_' + str(n) + '_conv_img')
 
-            print(sh, sw)
-            x = F.interpolate(seg, size=(sh, sw))
+            x = F.interpolate(x, size=(sh, sw))
             x = fc(x)
             x = head_0(x, seg)
             x = up(x)
@@ -505,6 +502,7 @@ class SPADE(nn.Module):
             nn.Conv2d(label_nc, nhidden, kernel_size=(ks,ks), padding=pw),
             nn.ReLU()
         )
+        print('norm_nc: ', norm_nc)
         self.mlp_gamma = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
         self.mlp_beta = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
 
@@ -554,6 +552,7 @@ class SPADEResnetBlock(nn.Module):
         # define normalization layers
         #spade_config_str = opt.norm_G.replace('spectral', '')
         spade_config_str = 'spadeinstance3x3'
+        print('spade basic: ', fin, input_nc)
         self.norm_0 = SPADE(spade_config_str, fin, input_nc)
         self.norm_1 = SPADE(spade_config_str, fmiddle, input_nc)
         if self.learned_shortcut:

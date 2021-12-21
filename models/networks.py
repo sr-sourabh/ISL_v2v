@@ -162,8 +162,19 @@ class LocalEnhancer(nn.Module):
 
         # spade config
         model_global = GlobalGenerator(input_nc, output_nc, ngf_global, n_downsample_global, n_blocks_global,
-                                       norm_layer).model
-        self.model = model_global
+                                       norm_layer)
+        self.compute_latent_vector_size = model_global.compute_latent_vector_size
+        self.global_sw, self.global_sh = self.compute_latent_vector_size()
+        self.global_fc = model_global.fc
+        self.global_head_0 = model_global.head_0
+        self.global_G_middle_0 = model_global.G_middle_0
+        self.global_G_middle_1 = model_global.G_middle_1
+        self.global_up_0 = model_global.up_0
+        self.global_up_1 = model_global.up_1
+        self.global_up_2 = model_global.up_2
+        self.global_up_3 = model_global.up_3
+        self.global_conv_img = model_global.conv_img
+        self.global_up = model_global.up
         print('n_local_enhancers: ', n_local_enhancers)
 
         ''' ###### local enhancer layers #####
@@ -239,7 +250,35 @@ class LocalEnhancer(nn.Module):
 
         # spade variation
         seg = input
+
+        ### create input pyramid
+        input_downsampled = [input]
+        for i in range(self.n_local_enhancers):
+            input_downsampled.append(self.downsample(input_downsampled[-1]))
+
+        x = F.interpolate(seg, size=(self.global_sh, self.global_sw))
+        x = self.global_fc(x)
+        x = self.global_head_0(x, seg)
+        x = self.global_up(x)
+
+        x = self.global_G_middle_0(x, seg)
+        x = self.global_G_middle_1(x, seg)
+
+        x = self.global_up(x)
+        x = self.global_up_0(x, seg)
+        x = self.global_up(x)
+        x = self.global_up_1(x, seg)
+        x = self.global_up(x)
+        x = self.global_up_2(x, seg)
+        x = self.global_up(x)
+        x = self.global_up_3(x, seg)
+
+        x = self.global_conv_img(F.leaky_relu(x, 2e-1))
+        x = F.tanh(x)
+
         for n in range(1, self.n_local_enhancers + 1):
+            input_i = input_downsampled[self.n_local_enhancers - n]
+            x += input_i
             sh = getattr(self, 'spade_' + str(n) + '_sh')
             sw = getattr(self, 'spade_' + str(n) + '_sw')
             fc = getattr(self, 'spade_' + str(n) + '_fc')

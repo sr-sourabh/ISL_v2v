@@ -218,8 +218,8 @@ class LocalEnhancer(nn.Module):
             ### residual blocks
             sw, sh = self.compute_latent_vector_size()
             final_nc = ngf_global
-            setattr(self, 'spade_' + str(n) + '_sw', sw - (2 ** (n_local_enhancers - n)))
-            setattr(self, 'spade_' + str(n) + '_sh', sh - (2 ** (n_local_enhancers - n)))
+            setattr(self, 'spade_' + str(n) + '_sw', sw - (2 ** (n_local_enhancers - n)) + 1)
+            setattr(self, 'spade_' + str(n) + '_sh', sh - (2 ** (n_local_enhancers - n)) + 1)
             setattr(self, 'spade_' + str(n) + '_fc', nn.Conv2d(input_nc, 16 * ngf_global, 3, padding=1))
             setattr(self, 'spade_' + str(n) + '_head_0', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc))
             setattr(self, 'spade_' + str(n) + '_G_middle_0', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc))

@@ -283,6 +283,8 @@ class LocalEnhancer(nn.Module):
         x = self.global_conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)
 
+        seg = x
+
 
         for n in range(1, self.n_local_enhancers + 1):
             input_i = input_downsampled[self.n_local_enhancers - n]

@@ -212,7 +212,7 @@ class LocalEnhancer(nn.Module):
             ngf_global = ngf * (2 ** (n_local_enhancers - n))
             print(ngf, ngf_global)
             model_downsample = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf_global, kernel_size=7, padding=0), nn.ReLU(True),
-                                nn.Conv2d(ngf_global, ngf_global * 2, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
+                                nn.Conv2d(ngf_global, 3, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
             setattr(self, 'model_downsample_' + str(n), nn.Sequential(*model_downsample))
 
             ### residual blocks

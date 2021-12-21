@@ -255,6 +255,7 @@ class LocalEnhancer(nn.Module):
 
         # spade variation
         seg = input
+        print('Original: ', input.shape)
 
         ### create input pyramid
         input_downsampled = [input]
@@ -503,7 +504,6 @@ class SPADE(nn.Module):
             nn.Conv2d(label_nc, nhidden, kernel_size=(ks,ks), padding=pw),
             nn.ReLU()
         )
-        print('norm_nc: ', norm_nc)
         self.mlp_gamma = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
         self.mlp_beta = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
 
@@ -553,7 +553,6 @@ class SPADEResnetBlock(nn.Module):
         # define normalization layers
         #spade_config_str = opt.norm_G.replace('spectral', '')
         spade_config_str = 'spadeinstance3x3'
-        print('spade basic: ', fin, input_nc)
         self.norm_0 = SPADE(spade_config_str, fin, input_nc)
         self.norm_1 = SPADE(spade_config_str, fmiddle, input_nc)
         if self.learned_shortcut:

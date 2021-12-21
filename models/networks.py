@@ -373,6 +373,8 @@ class GlobalGenerator(nn.Module):
 
         self.G_middle_0 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
         self.G_middle_1 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+        self.G_middle_2 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+        self.G_middle_3 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
 
         self.up_0 = SPADEResnetBlock(16 * ngf, 8 * ngf, input_nc)
         self.up_1 = SPADEResnetBlock(8 * ngf, 4 * ngf, input_nc)

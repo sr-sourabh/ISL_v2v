@@ -163,10 +163,6 @@ class LocalEnhancer(nn.Module):
         # spade config
         model_global = GlobalGenerator(input_nc, output_nc, ngf_global, n_downsample_global, n_blocks_global,
                                        norm_layer)
-        print(model_global.fc.weight.detach().numpy())
-        print(model_global.head_0.weight.detach().numpy())
-        print(model_global.up_2.weight.detach().numpy())
-        print(model_global.conv_img.weight.detach().numpy())
 
         self.compute_latent_vector_size = model_global.compute_latent_vector_size
         self.global_sw, self.global_sh = self.compute_latent_vector_size()

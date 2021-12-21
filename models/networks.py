@@ -253,7 +253,7 @@ class LocalEnhancer(nn.Module):
         return output_prev '''
 
         # spade variation
-        seg = input.detach().clone()
+        seg = input
         print('Original: ' , input.shape)
 
         ### create input pyramid
@@ -261,7 +261,7 @@ class LocalEnhancer(nn.Module):
         for i in range(self.n_local_enhancers):
             input_downsampled.append(self.downsample(input_downsampled[-1]))
 
-        x = F.interpolate(seg, size=(self.global_sh, self.global_sw))
+        x = F.interpolate(seg, size=(2*self.global_sh, 2*self.global_sw))
         x = self.global_fc(x)
         x = self.global_head_0(x, seg)
         x = self.global_up(x)

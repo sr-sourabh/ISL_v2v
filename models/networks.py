@@ -210,6 +210,7 @@ class LocalEnhancer(nn.Module):
         for n in range(1, n_local_enhancers + 1):
             ### downsample
             ngf_global = ngf * (2 ** (n_local_enhancers - n))
+            print(ngf, ngf_global)
             model_downsample = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf_global, kernel_size=7, padding=0), nn.ReLU(True),
                                 nn.Conv2d(ngf_global, ngf_global * 2, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
             setattr(self, 'model_downsample_' + str(n), nn.Sequential(*model_downsample))
@@ -283,7 +284,7 @@ class LocalEnhancer(nn.Module):
             input_i = input_downsampled[self.n_local_enhancers - n]
             model_downsample = getattr(self, 'model_downsample_' + str(n))
             input_i = model_downsample(input_i)
-            print(input_i.shape)
+            print(input_i.shape. x.shape)
             x += input_i
             sh = getattr(self, 'spade_' + str(n) + '_sh')
             sw = getattr(self, 'spade_' + str(n) + '_sw')

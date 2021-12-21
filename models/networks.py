@@ -254,6 +254,7 @@ class LocalEnhancer(nn.Module):
 
         # spade variation
         seg = input
+        print('Original: ' , input.shape)
 
         ### create input pyramid
         input_downsampled = [input]

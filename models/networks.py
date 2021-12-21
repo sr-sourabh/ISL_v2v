@@ -228,8 +228,8 @@ class LocalEnhancer(nn.Module):
             setattr(self, 'spade_' + str(n) + '_G_middle_1', SPADEResnetBlock(8 * ngf_global, 8 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_up_0', SPADEResnetBlock(8 * ngf_global, 4 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_up_1', SPADEResnetBlock(4 * ngf_global, 4 * ngf_global, input_nc_by_2))
-            setattr(self, 'spade_' + str(n) + '_up_2', SPADEResnetBlock(4 * ngf_global, 4 * ngf_global, input_nc_by_2))
-            setattr(self, 'spade_' + str(n) + '_up_3', SPADEResnetBlock(4 * ngf_global, 1 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_up_2', SPADEResnetBlock(4 * ngf_global, 2 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_up_3', SPADEResnetBlock(2 * ngf_global, 1 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_conv_img', nn.Conv2d(final_nc, 3, (3, 3), padding=1))
             setattr(self, 'spade_' + str(n) + '_up', nn.Upsample(scale_factor=2))
 

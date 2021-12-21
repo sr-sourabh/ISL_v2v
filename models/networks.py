@@ -208,8 +208,11 @@ class LocalEnhancer(nn.Module):
 
         # Spade variation
         for n in range(1, n_local_enhancers + 1):
-            ### downsample ---> not required in spade
+            ### downsample
             ngf_global = ngf * (2 ** (n_local_enhancers - n))
+            model_downsample = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf_global, kernel_size=7, padding=0), nn.ReLU(True),
+                                nn.Conv2d(ngf_global, ngf_global * 2, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
+            setattr(self, 'model_downsample_' + str(n), model_downsample)
 
             ### residual blocks
             sw, sh = self.compute_latent_vector_size()
@@ -253,9 +256,6 @@ class LocalEnhancer(nn.Module):
 
         ### create input pyramid
         input_downsampled = [input]
-        print(input.shape)
-        print(self.downsample(input_downsampled[-1]).shape)
-        print(self.downsample(self.downsample(input_downsampled[-1])).shape)
         for i in range(self.n_local_enhancers+1):
             input_downsampled.append(self.downsample(input_downsampled[-1]))
 
@@ -281,7 +281,9 @@ class LocalEnhancer(nn.Module):
 
         for n in range(1, self.n_local_enhancers + 1):
             input_i = input_downsampled[self.n_local_enhancers - n + 1]
-            print(input_i.shape, x.shape)
+            model_downsample = getattr(self, 'model_downsample_' + str(n))
+            input_i = model_downsample(input_i)
+            print(input_i.shape)
             x += input_i
             sh = getattr(self, 'spade_' + str(n) + '_sh')
             sw = getattr(self, 'spade_' + str(n) + '_sw')

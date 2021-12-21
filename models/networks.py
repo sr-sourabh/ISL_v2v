@@ -210,7 +210,7 @@ class LocalEnhancer(nn.Module):
         for n in range(1, n_local_enhancers + 1):
             ### downsample
             # ngf_global = ngf * (2 ** (n_local_enhancers - n))
-            ngf_global = 40
+            ngf_global = 20
             input_nc_by_2 = input_nc//2
             model_downsample = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf_global, kernel_size=7, padding=0), nn.ReLU(True),
                                 nn.Conv2d(ngf_global, 3, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
@@ -226,6 +226,7 @@ class LocalEnhancer(nn.Module):
             setattr(self, 'spade_' + str(n) + '_head_0', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_G_middle_0', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_G_middle_1', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_G_middle_2',SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_up_0', SPADEResnetBlock(16 * ngf_global, 8 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_up_1', SPADEResnetBlock(8 * ngf_global, 4 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_up_2', SPADEResnetBlock(4 * ngf_global, 2 * ngf_global, input_nc_by_2))
@@ -298,48 +299,35 @@ class LocalEnhancer(nn.Module):
             up = getattr(self, 'spade_' + str(n) + '_up')
             G_middle_0 = getattr(self, 'spade_' + str(n) + '_G_middle_0')
             G_middle_1 = getattr(self, 'spade_' + str(n) + '_G_middle_1')
+            G_middle_2 = getattr(self, 'spade_' + str(n) + '_G_middle_2')
             up_0 = getattr(self, 'spade_' + str(n) + '_up_0')
             up_1 = getattr(self, 'spade_' + str(n) + '_up_1')
             up_2 = getattr(self, 'spade_' + str(n) + '_up_2')
             up_3 = getattr(self, 'spade_' + str(n) + '_up_3')
             conv_img = getattr(self, 'spade_' + str(n) + '_conv_img')
 
-            print(x.shape)
             x = F.interpolate(x, size=(sh, sw))
-            print(x.shape)
             x = fc(x)
-            print(x.shape)
             x = head_0(x, seg)
-            print(x.shape)
             x = up(x)
-            print(x.shape)
 
             x = G_middle_0(x, seg)
-            print(x.shape)
             x = G_middle_1(x, seg)
-            print(x.shape)
+
+            x = G_middle_2(x, seg)
+            x = up(x)
 
             x = up(x)
-            print(x.shape)
             x = up_0(x, seg)
-            print(x.shape)
             x = up(x)
-            print(x.shape)
             x = up_1(x, seg)
-            print(x.shape)
             x = up(x)
-            print(x.shape)
             x = up_2(x, seg)
-            print(x.shape)
             x = up(x)
-            print(x.shape)
             x = up_3(x, seg)
-            print(x.shape)
 
             x = conv_img(F.leaky_relu(x, 2e-1))
-            print(x.shape)
             x = F.tanh(x)
-            print(x.shape)
 
         print('final x: ', x.shape)
         return x

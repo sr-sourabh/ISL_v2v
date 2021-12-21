@@ -260,6 +260,7 @@ class LocalEnhancer(nn.Module):
         for i in range(self.n_local_enhancers):
             input_downsampled.append(self.downsample(input_downsampled[-1]))
 
+        print('sss ', self.global_sh, self.global_sw)
         x = F.interpolate(seg, size=(self.global_sh, self.global_sw))
         x = self.global_fc(x)
         x = self.global_head_0(x, seg)

@@ -282,6 +282,7 @@ class LocalEnhancer(nn.Module):
         for n in range(1, self.n_local_enhancers + 1):
             input_i = input_downsampled[self.n_local_enhancers - n + 1]
             model_downsample = getattr(self, 'model_downsample_' + str(n))
+            print(input_i)
             input_i = model_downsample(input_i)
             print(input_i.shape)
             x += input_i

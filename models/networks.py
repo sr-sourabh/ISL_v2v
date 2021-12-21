@@ -503,6 +503,7 @@ class SPADE(nn.Module):
         self.mlp_beta = nn.Conv2d(nhidden, norm_nc, kernel_size=(ks,ks), padding=pw)
 
     def forward(self, x, segmap):
+        print(x.shape, segmap.shape)
         # Part 1. generate parameter-free normalized activations
         normalized = self.param_free_norm(x)
 

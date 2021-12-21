@@ -253,7 +253,7 @@ class LocalEnhancer(nn.Module):
         return output_prev '''
 
         # spade variation
-        seg = input.copy()
+        seg = input.detach().clone()
         print('Original: ' , input.shape)
 
         ### create input pyramid

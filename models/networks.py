@@ -254,14 +254,13 @@ class LocalEnhancer(nn.Module):
 
         # spade variation
         seg = input
-        print('Original: ' , input.shape)
 
         ### create input pyramid
         input_downsampled = [input]
         for i in range(self.n_local_enhancers):
             input_downsampled.append(self.downsample(input_downsampled[-1]))
 
-        x = F.interpolate(seg, size=(2*self.global_sh, 2*self.global_sw))
+        x = F.interpolate(seg, size=(self.global_sh, self.global_sw))
         x = self.global_fc(x)
         x = self.global_head_0(x, seg)
         x = self.global_up(x)
@@ -280,6 +279,8 @@ class LocalEnhancer(nn.Module):
 
         x = self.global_conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)
+
+        print(x.shape, seg.shape)
 
         for n in range(1, self.n_local_enhancers + 1):
             input_i = input_downsampled[self.n_local_enhancers - n]

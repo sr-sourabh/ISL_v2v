@@ -216,6 +216,7 @@ class LocalEnhancer(nn.Module):
             setattr(self, 'model_downsample_' + str(n), nn.Sequential(*model_downsample))
 
             ### residual blocks
+            print('input_nc: ', input_nc)
             sw, sh = self.compute_latent_vector_size()
             final_nc = ngf_global
             setattr(self, 'spade_' + str(n) + '_sw', sw - (2 ** (n_local_enhancers - n)) + 1)

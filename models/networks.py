@@ -283,9 +283,9 @@ class LocalEnhancer(nn.Module):
         for n in range(1, self.n_local_enhancers + 1):
             input_i = input_downsampled[self.n_local_enhancers - n]
             model_downsample = getattr(self, 'model_downsample_' + str(n))
-            input_i = model_downsample(input_i)
-            print(input_i.shape, x.shape)
-            x += input_i
+            output = model_downsample(input_i)
+            print(output.shape, x.shape)
+            x += output
             sh = getattr(self, 'spade_' + str(n) + '_sh')
             sw = getattr(self, 'spade_' + str(n) + '_sw')
             fc = getattr(self, 'spade_' + str(n) + '_fc')

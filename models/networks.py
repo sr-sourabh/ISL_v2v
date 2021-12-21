@@ -211,6 +211,7 @@ class LocalEnhancer(nn.Module):
             ### downsample
             # ngf_global = ngf * (2 ** (n_local_enhancers - n))
             ngf_global = 20
+            input_nc_by_2 = input_nc//2
             model_downsample = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf_global, kernel_size=7, padding=0), nn.ReLU(True),
                                 nn.Conv2d(ngf_global, 3, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
             setattr(self, 'model_downsample_' + str(n), nn.Sequential(*model_downsample))
@@ -221,14 +222,14 @@ class LocalEnhancer(nn.Module):
             final_nc = ngf_global
             setattr(self, 'spade_' + str(n) + '_sw', sw - (2 ** (n_local_enhancers - n)) + 1)
             setattr(self, 'spade_' + str(n) + '_sh', sh - (2 ** (n_local_enhancers - n)) + 1)
-            setattr(self, 'spade_' + str(n) + '_fc', nn.Conv2d(input_nc, 16 * ngf_global, 3, padding=1))
-            setattr(self, 'spade_' + str(n) + '_head_0', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc))
-            setattr(self, 'spade_' + str(n) + '_G_middle_0', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc))
-            setattr(self, 'spade_' + str(n) + '_G_middle_1', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc))
-            setattr(self, 'spade_' + str(n) + '_up_0', SPADEResnetBlock(16 * ngf_global, 8 * ngf_global, input_nc))
-            setattr(self, 'spade_' + str(n) + '_up_1', SPADEResnetBlock(8 * ngf_global, 8 * ngf_global, input_nc))
-            setattr(self, 'spade_' + str(n) + '_up_2', SPADEResnetBlock(4 * ngf_global, 8 * ngf_global, input_nc))
-            setattr(self, 'spade_' + str(n) + '_up_3', SPADEResnetBlock(2 * ngf_global, 8 * ngf_global, input_nc))
+            setattr(self, 'spade_' + str(n) + '_fc', nn.Conv2d(input_nc_by_2, 16 * ngf_global, 3, padding=1))
+            setattr(self, 'spade_' + str(n) + '_head_0', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_G_middle_0', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_G_middle_1', SPADEResnetBlock(16 * ngf_global, 16 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_up_0', SPADEResnetBlock(16 * ngf_global, 8 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_up_1', SPADEResnetBlock(8 * ngf_global, 8 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_up_2', SPADEResnetBlock(4 * ngf_global, 8 * ngf_global, input_nc_by_2))
+            setattr(self, 'spade_' + str(n) + '_up_3', SPADEResnetBlock(2 * ngf_global, 8 * ngf_global, input_nc_by_2))
             setattr(self, 'spade_' + str(n) + '_conv_img', nn.Conv2d(final_nc, 3, (3, 3), padding=1))
             setattr(self, 'spade_' + str(n) + '_up', nn.Upsample(scale_factor=2))
 

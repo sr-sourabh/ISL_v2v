@@ -321,6 +321,7 @@ class LocalEnhancer(nn.Module):
             x = conv_img(F.leaky_relu(x, 2e-1))
             x = F.tanh(x)
 
+        print('final x: ', x.shape)
         return x
 
 

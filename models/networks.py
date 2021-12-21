@@ -278,6 +278,7 @@ class LocalEnhancer(nn.Module):
 
         for n in range(1, self.n_local_enhancers + 1):
             input_i = input_downsampled[self.n_local_enhancers - n]
+            print(input_i.size, x.size)
             x += input_i
             sh = getattr(self, 'spade_' + str(n) + '_sh')
             sw = getattr(self, 'spade_' + str(n) + '_sw')

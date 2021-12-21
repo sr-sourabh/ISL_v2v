@@ -253,7 +253,7 @@ class LocalEnhancer(nn.Module):
 
         ### create input pyramid
         input_downsampled = [input]
-        for i in range(self.n_local_enhancers):
+        for i in range(self.n_local_enhancers+1):
             input_downsampled.append(self.downsample(input_downsampled[-1]))
 
         x = F.interpolate(seg, size=(self.global_sh, self.global_sw))
@@ -277,7 +277,7 @@ class LocalEnhancer(nn.Module):
         x = F.tanh(x)
 
         for n in range(1, self.n_local_enhancers + 1):
-            input_i = input_downsampled[self.n_local_enhancers - n]
+            input_i = input_downsampled[self.n_local_enhancers - n + 1]
             print(input_i.shape, x.shape)
             x += input_i
             sh = getattr(self, 'spade_' + str(n) + '_sh')

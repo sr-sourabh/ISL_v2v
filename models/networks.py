@@ -253,8 +253,8 @@ class LocalEnhancer(nn.Module):
 
         ### create input pyramid
         input_downsampled = [input]
-        print(self.downsample(input_downsampled[-1]).size)
-        print(self.downsample(self.downsample(input_downsampled[-1]).size))
+        print(self.downsample(input_downsampled[-1]).shape)
+        print(self.downsample(self.downsample(input_downsampled[-1]).shape))
         for i in range(self.n_local_enhancers+1):
             input_downsampled.append(self.downsample(input_downsampled[-1]))
 

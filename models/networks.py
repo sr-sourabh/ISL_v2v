@@ -214,7 +214,7 @@ class LocalEnhancer(nn.Module):
             ngf_global = 4
             input_nc_by_2 = input_nc//2
             model_downsample = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf_global, kernel_size=7, padding=0), nn.ReLU(True),
-                                nn.Conv2d(ngf_global, 3, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
+                                nn.Conv2d(ngf_global, 6, kernel_size=3, stride=2, padding=1), nn.ReLU(True)]
             setattr(self, 'model_downsample_' + str(n), nn.Sequential(*model_downsample))
 
             ### residual blocks
@@ -282,7 +282,7 @@ class LocalEnhancer(nn.Module):
         x = self.global_conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)
 
-        seg = x
+        seg = F.interpolate(seg, size=x.shape)
 
 
         for n in range(1, self.n_local_enhancers + 1):

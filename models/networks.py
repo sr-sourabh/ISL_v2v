@@ -282,7 +282,7 @@ class LocalEnhancer(nn.Module):
         x = self.global_conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)
 
-        print(seg[:3, :, :])
+        print(seg[:3, :, :].shape)
         seg = F.interpolate(seg[:3, :, :], size=(x.shape[2], x.shape[3]))
         print(seg.shape)
 

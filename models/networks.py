@@ -236,7 +236,7 @@ class LocalEnhancer(nn.Module):
         self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False) '''
 
         # spade variation 2 (same as global)
-        ngf = 6
+        ngf = 8
         self.sw, self.sh = self.compute_latent_vector_size()
 
         self.fc = nn.Conv2d(input_nc, 16 * ngf, 3, padding=1)
@@ -379,7 +379,6 @@ class LocalEnhancer(nn.Module):
 
         x = self.conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)
-        print(x.shape)
 
         return x
 

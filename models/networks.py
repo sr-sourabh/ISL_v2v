@@ -160,7 +160,7 @@ class LocalEnhancer(nn.Module):
         model_global = [model_global[i] for i in range(len(list(model_global))-3)] # get rid of final convolution layers        
         self.model = nn.Sequential(*model_global)       '''
 
-        # spade config
+        ''' # spade config
         model_global = GlobalGenerator(input_nc, output_nc, ngf_global, n_downsample_global, n_blocks_global,
                                        norm_layer)
 
@@ -176,7 +176,7 @@ class LocalEnhancer(nn.Module):
         self.global_up_3 = model_global.up_3
         self.global_conv_img = model_global.conv_img
         self.global_up = model_global.up
-        print('n_local_enhancers: ', n_local_enhancers)
+        print('n_local_enhancers: ', n_local_enhancers) '''
 
         ''' ###### local enhancer layers #####
         for n in range(1, n_local_enhancers+1):
@@ -207,7 +207,7 @@ class LocalEnhancer(nn.Module):
 
         self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False) '''
 
-        # Spade variation
+        ''' # Spade variation 1
         for n in range(1, n_local_enhancers + 1):
             ### downsample
             # ngf_global = ngf * (2 ** (n_local_enhancers - n))
@@ -233,7 +233,37 @@ class LocalEnhancer(nn.Module):
             setattr(self, 'spade_' + str(n) + '_conv_img', nn.Conv2d(final_nc, 3, (3, 3), padding=1))
             setattr(self, 'spade_' + str(n) + '_up', nn.Upsample(scale_factor=2))
 
-        self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False)
+        self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False) '''
+
+        # spade variation 2 (same as global)
+        ngf = 40
+        self.sw, self.sh = self.compute_latent_vector_size()
+
+        self.fc = nn.Conv2d(input_nc, 16 * ngf, 3, padding=1)
+
+        self.head_0 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+
+        self.G_middle_0 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+        self.G_middle_1 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+        self.G_middle_2 = SPADEResnetBlock(16 * ngf, 16 * ngf, input_nc)
+
+        self.up_0 = SPADEResnetBlock(16 * ngf, 8 * ngf, input_nc)
+        self.up_1 = SPADEResnetBlock(8 * ngf, 4 * ngf, input_nc)
+        self.up_2 = SPADEResnetBlock(4 * ngf, 2 * ngf, input_nc)
+        self.up_3 = SPADEResnetBlock(2 * ngf, 1 * ngf, input_nc)
+
+        final_nc = ngf
+        self.conv_img = nn.Conv2d(final_nc, 3, (3, 3), padding=1)
+        self.up = nn.Upsample(scale_factor=2)
+
+    def compute_latent_vector_size(self):
+        num_up_layers = 5
+        crop_size = 512
+        aspect_ratio = 2
+        sw = crop_size // (2 ** num_up_layers)
+        sh = round(sw / aspect_ratio)
+        return sw, sh
+
 
     def forward(self, input):
         ''' ### create input pyramid
@@ -254,7 +284,7 @@ class LocalEnhancer(nn.Module):
             output_prev = model_upsample(output_spade)
         return output_prev '''
 
-        # spade variation
+        ''' # spade variation 1
         seg = input
 
         ### create input pyramid
@@ -322,6 +352,34 @@ class LocalEnhancer(nn.Module):
 
             x = conv_img(F.leaky_relu(x, 2e-1))
             x = F.tanh(x)
+
+        return x '''
+
+        # spade variation 2
+        seg = input
+
+        x = F.interpolate(seg, size=(self.sh, self.sw))
+        x = self.fc(x)
+        x = self.head_0(x, seg)
+        x = self.up(x)
+
+        x = self.G_middle_0(x, seg)
+        x = self.G_middle_1(x, seg)
+        x = self.up(x)
+        x = self.G_middle_2(x, seg)
+
+        x = self.up(x)
+        x = self.up_0(x, seg)
+        x = self.up(x)
+        x = self.up_1(x, seg)
+        x = self.up(x)
+        x = self.up_2(x, seg)
+        x = self.up(x)
+        x = self.up_3(x, seg)
+
+        x = self.conv_img(F.leaky_relu(x, 2e-1))
+        x = F.tanh(x)
+        print(x.shape)
 
         return x
 

@@ -236,7 +236,7 @@ class LocalEnhancer(nn.Module):
         self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False) '''
 
         # spade variation 2 (same as global)
-        ngf = 10
+        ngf = 6
         self.sw, self.sh = self.compute_latent_vector_size()
 
         self.fc = nn.Conv2d(input_nc, 16 * ngf, 3, padding=1)

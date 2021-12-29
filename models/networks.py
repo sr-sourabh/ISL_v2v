@@ -391,6 +391,7 @@ class GlobalGenerator(nn.Module):
         super(GlobalGenerator, self).__init__()        
         activation = nn.ReLU(True)
         self.n_blocks = n_blocks
+        print('laaaaaaaaaaaaaaaaaaaaaaaa: ', input_nc, n_downsampling, n_blocks)
 
         #model1 = [nn.ReflectionPad2d(3), nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0), norm_layer(ngf), activation]
         ### downsample

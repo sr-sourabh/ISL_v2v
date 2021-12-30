@@ -165,17 +165,17 @@ class LocalEnhancer(nn.Module):
                                        norm_layer)
 
         self.compute_latent_vector_size = model_global.compute_latent_vector_size
-        self.global_sw, self.global_sh = self.compute_latent_vector_size()
-        self.global_fc = model_global.fc
-        self.global_head_0 = model_global.head_0
-        self.global_G_middle_0 = model_global.G_middle_0
-        self.global_G_middle_1 = model_global.G_middle_1
-        self.global_up_0 = model_global.up_0
-        self.global_up_1 = model_global.up_1
-        self.global_up_2 = model_global.up_2
-        self.global_up_3 = model_global.up_3
-        self.global_conv_img = model_global.conv_img
-        self.global_up = model_global.up
+        self.sw, self.sh = self.compute_latent_vector_size()
+        self.fc = model_global.fc
+        self.head_0 = model_global.head_0
+        self.G_middle_0 = model_global.G_middle_0
+        self.G_middle_1 = model_global.G_middle_1
+        self.up_0 = model_global.up_0
+        self.up_1 = model_global.up_1
+        self.up_2 = model_global.up_2
+        self.up_3 = model_global.up_3
+        self.conv_img = model_global.conv_img
+        self.up = model_global.up
         print('n_local_enhancers: ', n_local_enhancers)
 
         #old config
@@ -294,23 +294,23 @@ class LocalEnhancer(nn.Module):
             input_downsampled.append(self.downsample(input_downsampled[-1]))
 
         x = F.interpolate(seg, size=(self.global_sh, self.global_sw))
-        x = self.global_fc(x)
-        x = self.global_head_0(x, seg)
-        x = self.global_up(x)
+        x = self.fc(x)
+        x = self.head_0(x, seg)
+        x = self.up(x)
 
-        x = self.global_G_middle_0(x, seg)
-        x = self.global_G_middle_1(x, seg)
+        x = self.G_middle_0(x, seg)
+        x = self.G_middle_1(x, seg)
 
-        x = self.global_up(x)
-        x = self.global_up_0(x, seg)
-        x = self.global_up(x)
-        x = self.global_up_1(x, seg)
-        x = self.global_up(x)
-        x = self.global_up_2(x, seg)
-        x = self.global_up(x)
-        x = self.global_up_3(x, seg)
+        x = self.up(x)
+        x = self.up_0(x, seg)
+        x = self.up(x)
+        x = self.up_1(x, seg)
+        x = self.up(x)
+        x = self.up_2(x, seg)
+        x = self.up(x)
+        x = self.up_3(x, seg)
 
-        x = self.global_conv_img(F.leaky_relu(x, 2e-1))
+        x = self.conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)
 
         seg = F.interpolate(seg[ : ,:3, :, :], size=(x.shape[2], x.shape[3]))

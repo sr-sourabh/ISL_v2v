@@ -66,9 +66,9 @@ class BaseModel(torch.nn.Module):
             except:   
                 pretrained_dict = torch.load(save_path)                
                 model_dict = network.state_dict()
-                print(network_label)
-                print('model_dict', list(model_dict.keys()))
-                print('pretrained_dict', list(pretrained_dict.keys()))
+                # print(network_label)
+                # print('model_dict', list(model_dict.keys()))
+                # print('pretrained_dict', list(pretrained_dict.keys()))
                 try:
                     pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict}                    
                     network.load_state_dict(pretrained_dict)
